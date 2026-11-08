@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import type { EpisodeDetail } from '../../../../../server/api-types.ts';
+import { ShotCard } from '@/components/shot-card';
 import { ShotViewer } from '@/components/shot-viewer';
 import { stateLabel, stateTone } from '@/components/shot-state';
 import { Badge } from '@/components/ui/badge';
@@ -12,13 +13,37 @@ import { useEpisode } from '@/lib/api';
 import { cn } from '@/lib/cn';
 
 const TABS = [
-  { id: 'write', label: 'Write', ready: true },
-  { id: 'pictures', label: 'Pictures', ready: true },
+  { id: 'shots', label: 'Shots', ready: true },
   { id: 'sound', label: 'Sound', ready: false },
   { id: 'video', label: 'Video', ready: true },
   { id: 'publish', label: 'Publish', ready: false },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
+
+const VIEWS = [
+  { id: 'cards', label: 'Work on shots' },
+  { id: 'grid', label: 'Review pictures' },
+  { id: 'script', label: 'Read the script' },
+] as const;
+type ViewId = (typeof VIEWS)[number]['id'];
+
+function Shots({ episode }: { episode: EpisodeDetail }) {
+  const [view, setView] = useState<ViewId>('cards');
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="inline-flex self-start rounded-lg border border-border p-0.5 text-sm">
+        {VIEWS.map((v) => (
+          <button key={v.id} onClick={() => setView(v.id)} className={cn('rounded-md px-3 py-1', v.id === view ? 'bg-accent/10 font-medium text-accent' : 'text-muted hover:text-foreground')}>
+            {v.label}
+          </button>
+        ))}
+      </div>
+      {view === 'cards' && <div className="flex flex-col gap-3">{episode.shotList.map((shot) => <ShotCard key={shot.number} episode={episode} shot={shot} />)}</div>}
+      {view === 'grid' && <Pictures episode={episode} />}
+      {view === 'script' && <Script episode={episode} />}
+    </div>
+  );
+}
 
 function Pictures({ episode }: { episode: EpisodeDetail }) {
   const [open, setOpen] = useState<number | null>(null);
@@ -27,7 +52,7 @@ function Pictures({ episode }: { episode: EpisodeDetail }) {
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
         {episode.shotList.map((shot, i) => (
           <button key={shot.id} onClick={() => setOpen(i)} className="group flex flex-col gap-1.5 text-left">
-            <div className={cn('aspect-[9/16] w-full overflow-hidden rounded-lg border-2 bg-border', shot.state === 'to-review' ? 'border-warning' : 'border-transparent', 'group-hover:border-accent')}>
+            <div className={cn('aspect-[9/16] w-full overflow-hidden rounded-lg border-2 bg-border', shot.state === 'to-review' || shot.state === 'out-of-date' ? 'border-warning' : 'border-transparent', 'group-hover:border-accent')}>
               {shot.image !== undefined && <img src={shot.image} alt={`Shot ${shot.number}`} className="h-full w-full object-cover" loading="lazy" />}
             </div>
             <div className="flex items-center justify-between gap-1 text-xs">
@@ -85,7 +110,7 @@ export default function EpisodePage() {
   if (isPending) return <p className="text-muted">Loading…</p>;
   if (error !== null) return <p className="text-warning">{error.message}</p>;
 
-  const fallback: TabId = episode.toReview > 0 || episode.stage === 'not-started' ? 'pictures' : episode.video !== undefined ? 'video' : 'write';
+  const fallback: TabId = 'shots';
   const requested = search.get('tab');
   const tab: TabId = TABS.some((t) => t.id === requested && t.ready) ? (requested as TabId) : fallback;
 
@@ -114,8 +139,7 @@ export default function EpisodePage() {
           </button>
         ))}
       </div>
-      {tab === 'pictures' && <Pictures episode={episode} />}
-      {tab === 'write' && <Script episode={episode} />}
+      {tab === 'shots' && <Shots episode={episode} />}
       {tab === 'video' && <Video episode={episode} />}
     </div>
   );

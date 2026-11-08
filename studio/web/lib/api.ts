@@ -21,6 +21,27 @@ export const useEpisode = (show: string, episode: string) =>
     queryFn: () => get<EpisodeDetail>(`/api/shows/${encodeURIComponent(show)}/episodes/${encodeURIComponent(episode)}`),
   });
 
+export type ShotAction =
+  | { action: 'edit'; rev: string; lines?: { speaker: string; text: string }[]; image?: string }
+  | { action: 'redraw' }
+  | { action: 'fix'; instruction: string }
+  | { action: 'keep' }
+  | { action: 'unkeep' }
+  | { action: 'use-version'; version: string };
+
+/** Runs an action on one shot; the server replies with the updated episode. */
+export function useShotAction(show: string, episode: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ number, ...body }: ShotAction & { number: number }) =>
+      post<EpisodeDetail>(`/api/shows/${show}/episodes/${episode}/shots/${number}/${body.action}`, JSON.stringify(body), true),
+    onSuccess: (detail) => {
+      client.setQueryData(['episode', show, episode], detail);
+      void client.invalidateQueries({ queryKey: ['shows'] });
+    },
+  });
+}
+
 export const useDraft = (id: string) => useQuery({ queryKey: ['draft', id], queryFn: () => get<Draft>(`/api/drafts/${id}`) });
 
 export const createDraft = (form: FormData) => post<{ id: string }>('/api/drafts', form);
