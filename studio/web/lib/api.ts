@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Draft, EpisodeDetail, ShowSummary, TurnEvent } from '../../server/api-types.ts';
+import type { Draft, EpisodeDetail, ShotChat, ShotTurnEvent, ShowSummary, TurnEvent } from '../../server/api-types.ts';
 
 export type DraftSummary = { id: string; kind: Draft['kind']; show: string; title: string; updatedAt: string; pending: number };
 
@@ -65,17 +65,12 @@ export const uploadAttachments = (draftId: string, files: File[]) => {
   return post<Draft>(`/api/drafts/${draftId}/attachments`, form);
 };
 
-/** Sends one message to Claude and calls onEvent for each streamed event until the turn ends. */
-export async function sendTurn(draftId: string, text: string, onEvent: (event: TurnEvent) => void, signal?: AbortSignal): Promise<void> {
-  const response = await fetch(`/api/drafts/${draftId}/turn`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ text }),
-    signal,
-  });
+/** Posts JSON and calls onEvent for each server-sent event until the stream ends. */
+async function streamPost<E>(path: string, body: unknown, onEvent: (event: E) => void, signal?: AbortSignal): Promise<void> {
+  const response = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal });
   if (!response.ok || response.body === null) {
-    const body = (await response.json().catch(() => ({}))) as { error?: string };
-    throw new Error(body.error ?? `HTTP ${response.status}`);
+    const error = (await response.json().catch(() => ({}))) as { error?: string };
+    throw new Error(error.error ?? `HTTP ${response.status}`);
   }
   const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
   let buffer = '';
@@ -88,7 +83,20 @@ export async function sendTurn(draftId: string, text: string, onEvent: (event: T
       const chunk = buffer.slice(0, end);
       buffer = buffer.slice(end + 2);
       const data = chunk.split('\n').filter((line) => line.startsWith('data:')).map((line) => line.slice(5).trimStart()).join('\n');
-      if (data !== '') onEvent(JSON.parse(data) as TurnEvent);
+      if (data !== '') onEvent(JSON.parse(data) as E);
     }
   }
 }
+
+/** Sends one message to Claude about a draft and streams the reply. */
+export const sendTurn = (draftId: string, text: string, onEvent: (event: TurnEvent) => void, signal?: AbortSignal) =>
+  streamPost(`/api/drafts/${draftId}/turn`, { text }, onEvent, signal);
+
+const shotPath = (show: string, episode: string, number: number): string => `/api/shows/${show}/episodes/${episode}/shots/${number}`;
+
+export const useShotChat = (show: string, episode: string, number: number, enabled: boolean) =>
+  useQuery({ queryKey: ['shot-chat', show, episode, number], queryFn: () => get<ShotChat>(`${shotPath(show, episode, number)}/chat`), enabled });
+
+/** Asks Claude about one shot and streams the reply and its suggestions. */
+export const askAboutShot = (show: string, episode: string, number: number, text: string, onEvent: (event: ShotTurnEvent) => void) =>
+  streamPost(`${shotPath(show, episode, number)}/ask`, { text }, onEvent);

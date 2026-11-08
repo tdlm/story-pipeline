@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { EpisodeDetail, ShotDetail } from '../../server/api-types.ts';
 import { ConfirmButton } from '@/components/confirm-button';
+import { ShotAssistant, type Apply } from '@/components/shot-assistant';
 import { stateLabel, stateTone } from '@/components/shot-state';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,8 @@ export function ShotCard({ episode, shot }: { episode: EpisodeDetail; shot: Shot
   const [fix, setFix] = useState('');
   const [preview, setPreview] = useState<string | null>(null);
   const [working, setWorking] = useState<string | null>(null);
+  const [asking, setAsking] = useState(false);
+  const [applied, setApplied] = useState<string | null>(null);
 
   // A fresh copy from the server replaces unsaved edits only when there are none.
   const dirty = JSON.stringify(lines) !== JSON.stringify(shot.lines) || prompt.trim() !== (shot.prompt ?? '').trim();
@@ -37,7 +40,13 @@ export function ShotCard({ episode, shot }: { episode: EpisodeDetail; shot: Shot
 
   const run = (label: string, body: Parameters<typeof action.mutate>[0]): void => {
     setWorking(label);
-    action.mutate(body, { onSettled: () => setWorking(null), onSuccess: () => { setPreview(null); setFix(''); } });
+    action.mutate(body, { onSettled: () => setWorking(null), onSuccess: () => { setPreview(null); setFix(''); setApplied(null); } });
+  };
+  const apply = ({ prompt: newPrompt, fix: newFix, lines: newLines }: Apply): void => {
+    if (newPrompt !== undefined) setPrompt(newPrompt);
+    if (newLines !== undefined) setLines(newLines);
+    if (newFix !== undefined) setFix(newFix);
+    setApplied(newFix !== undefined ? 'Fix filled in below the picture. Check it, then Fix it.' : 'Filled in. Check it, then Save.');
   };
   const n = shot.number;
   const busy = working !== null;
@@ -53,7 +62,10 @@ export function ShotCard({ episode, shot }: { episode: EpisodeDetail; shot: Shot
           <h3 className="font-semibold">Shot {n}</h3>
           <Badge tone={stateTone[shot.state]}>{stateLabel[shot.state]}</Badge>
           <span className="truncate text-xs text-muted">{[shot.move, shot.cast.join(', '), shot.location].filter(Boolean).join(' · ')}</span>
+          {shot.editable && <Button variant="ghost" className="ml-auto shrink-0" onClick={() => setAsking(!asking)}>{asking ? 'Close Claude' : 'Ask Claude'}</Button>}
         </div>
+        {asking && <ShotAssistant show={episode.show.id} episode={episode.id} shot={shot} onApply={apply} />}
+        {applied !== null && <p className="text-xs text-accent">{applied}</p>}
 
         {!shot.editable && <p className="text-sm text-muted">This is the series end card. Change it in the show's cast.yaml.</p>}
 
