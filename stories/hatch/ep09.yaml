@@ -1,0 +1,148 @@
+# HATCH, Part 9: The Dogs.
+# Written for the "keep the nail gun" result of Part 8's vote (about 8 to 1).
+# He turns the trader down politely ("be nice about it"); the trader leaves a free tip (the broadcast
+# gets louder near the hill: sets up the tower) and a warning (the dogs are out). That night: the
+# game's cinder hounds (animals the ash took; fast, in packs; not named yet). Claws on the hatch.
+# Milo, who wagged at the trader, growls at the ceiling (game: he growls at what isn't anyone).
+# They dig at the vent cap and pack the ash back in: cranking, but hardly any air ("That's the air").
+# Vote: go up with the nail gun to drive them off the vent, or stay sealed and crank until morning.
+# The pets are never in danger.
+
+title: The Dogs
+cast: cast.yaml
+aspect: "9:16"
+header: "HATCH · PART 9"
+
+shots:
+  - id: result
+    image_file: kept/ep08/vote.jpg
+    move: push-in
+    lines:
+      - narrator: "Nearly all of you said to keep the nail gun. A few of you said to be nice about it, so you are."
+
+  - id: decline
+    image_file: kept/ep08/offer.jpg
+    move: push-in
+    lines:
+      - you: "Sorry. The nail gun stays. Thanks for stopping by, though."
+      - trader: "Can't blame a man for asking."
+
+  - id: walks-away
+    cast: [trader]
+    props: [monitor]
+    plate: kept/ep02/vote.jpg
+    plate_focus: [0.71, 0.52]
+    plate_zoom: 2.5
+    image: >
+      Close-up of the monitor. On the grainy green camera feed (the same fixed view: a bank of ash
+      on the left, the upright steel frame on the right), the bearded trader has turned to leave,
+      his enormous pack on his back, glancing back over his shoulder at the camera and touching the
+      brim of his dark knitted cap with two fingers. Ash falling.
+    avoid: [anyone else on the screen, a realistic face, a mustard or yellow cap, hands in the foreground, a monster]
+    move: push-in
+    lines:
+      - trader: "You were straight with me, so here's one for free. That broadcast gets louder the closer you get to the hill."
+      - trader: "And keep that nail gun handy tonight. The dogs are out."
+      - narrator: "He tips his cap to the camera and heads off up the street."
+
+  - id: howl
+    location: basement
+    cast: [you, dana, cat]
+    plate: refs/basement.jpg
+    plate_focus: [0.35, 0.6]
+    relight: true
+    image: >
+      Night in the shelter, the bulbs turned down to a dim amber glow, deep shadows. The survivor in
+      his slate-blue coat and mustard beanie and Dana in her grey sweater sit up side by side on the
+      edge of the cot, both looking up at the ceiling, wide-eyed. On the top shelf, the black-and-white
+      cat is puffed up to twice his size, ears flat.
+    avoid: [open hatch, light at the hatch edges, realistic faces, hazmat suit, anyone else]
+    move: push-in
+    sfx:
+      - { sound: "a long eerie raspy howl far away outdoors at night, not quite a normal dog", at: 0.3, seconds: 4, volume: 0.7 }
+      - { sound: "several raspy howls answering each other outdoors at night, closer", at: 3.5, seconds: 5, volume: 0.8 }
+    lines:
+      - narrator: "Around midnight, something starts howling out on the street. Then something else answers it."
+      - dana-scared: "That doesn't sound like any dog I know."
+
+  - id: claws
+    image_file: kept/ep02/knock.jpg
+    move: push-in
+    sfx: claws scraping and skittering across a thick steel hatch overhead, heavy sniffing
+    sfx_volume: 0.9
+    lines:
+      - narrator: "Then claws, scraping right across the hatch."
+
+  - id: milo
+    location: basement
+    cast: [dog]
+    props: [hatch]
+    plate: refs/basement.jpg
+    plate_focus: [0.57, 0.78]
+    plate_zoom: 2.4
+    relight: true
+    image: >
+      Low close-up on the dog standing on the rug at the bottom rungs of the ladder in the dim amber
+      night light, head tipped back, staring straight up out of the top of the frame, hackles raised
+      along his back, lips pulled back from his teeth, growling. Sandy-tan scruffy mutt, darker
+      floppy ears with one ear flipped up, worn brown leather collar. Only the bottom of the ladder
+      is in frame; the ceiling and the hatch are out of frame.
+    avoid: [the hatch, the ceiling, any text or sound words, a different dog, anyone else]
+    move: push-in
+    sfx: a dog's low, steady, rumbling growl
+    lines:
+      - narrator: "Milo wagged at the trader. Now he's at the foot of the ladder, growling at the ceiling, low and steady, and he won't stop."
+
+  # Copied from Part 2's kept image so it can be edited here without touching Part 2.
+  - id: vent
+    location: basement
+    cast: [you]
+    props: [crank, hatch]
+    image: >
+      The survivor stands beside the vent pipe in the dim shelter, looking up to where it passes
+      through the ceiling to the surface. Near the top of the pipe is a round louvred vent grille.
+      The hatch at the top of the ladder is shut.
+    avoid: [open hatch, light at the hatch edges]
+    move: pan-up
+    sfx: a metal pipe rattling, heavy snuffling coming down it, grit sifting
+    lines:
+      - narrator: "They've found the vent cap, the one you just cleared."
+      - you: "They can smell us through the air pipe."
+
+  # Copied from Part 2's kept image so it can be edited here without touching Part 2.
+  - id: crank
+    location: basement
+    cast: [you]
+    props: [crank, hatch]
+    image: >
+      The survivor gripping the crank on the vent pipe with both hands and turning it, leaning
+      into it, determined. The hatch at the top of the ladder is shut.
+    avoid: [open hatch, light at the hatch edges]
+    move: push-in
+    sfx: a hand crank spinning, a fan wheezing and barely moving air
+    lines:
+      - narrator: "You keep cranking, but hardly any air is coming down the pipe. They're digging at the cap and packing the ash right back in."
+      - dana: "Is it just me, or is it getting hard to breathe?"
+      - you: "That's the *air*."
+
+  - id: vote
+    location: basement
+    cast: [you, dana, dog]
+    props: [hatch, crank, nail-gun]
+    plate: refs/basement.jpg
+    plate_focus: [0.58, 0.58]
+    relight: true
+    image: >
+      Night in the dim amber shelter. The survivor in his slate-blue coat and mustard beanie stands
+      at the foot of the ladder holding Hank's yellow-and-black nail gun, looking up at the closed
+      hatch. Beside him at the vent pipe, Dana in her grey sweater leans on the crank, red-faced and
+      tired. The dog stands at the survivor's feet, hackles up, growling at the hatch. A thin trickle
+      of grey ash sifts from the vent pipe.
+    avoid: [open hatch, light at the hatch edges, realistic faces, hazmat suit, anyone else]
+    move: push-in
+    hold: 4
+    sfx: a raspy growl overhead, claws on steel, a fan wheezing
+    sfx_volume: 0.5
+    lines:
+      - narrator: "Go up with Hank's nail gun and drive them off the vent? Or stay sealed, crank in shifts, and hope the air lasts until morning?"
+      - narrator: "Comment *one* or *two*."
