@@ -1,12 +1,12 @@
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { cartesiaSpeech } from './cartesia.ts';
 import { elevenLabsSpeech } from './elevenlabs.ts';
 import { env } from './env.ts';
 import { ffmpeg, probeDuration } from './ffmpeg.ts';
 import type { VoiceSettings } from './schema.ts';
-import { ensureDir, sha } from './util.ts';
+import { cachedPath, ensureDir, sha } from './util.ts';
 
 const TTS_CACHE = join(env.cacheDir, 'tts');
 
@@ -138,7 +138,7 @@ export async function speak(options: SpeakOptions): Promise<Speech> {
   let fresh = false;
 
   let meta: Meta | undefined = existsSync(metaFile) ? (JSON.parse(await readFile(metaFile, 'utf8')) as Meta) : undefined;
-  let audioFile = meta?.file ?? join(TTS_CACHE, `${key}.mp3`);
+  let audioFile = meta?.file === undefined ? join(TTS_CACHE, `${key}.mp3`) : cachedPath(TTS_CACHE, meta.file);
 
   if (meta === undefined || !existsSync(audioFile)) {
     if (options.mock) {
@@ -149,7 +149,7 @@ export async function speak(options: SpeakOptions): Promise<Speech> {
         '-af', 'volume=0.05', '-ac', '1', '-ar', '44100', '-c:a', 'libmp3lame', '-q:a', '6',
         audioFile,
       ]);
-      meta = { file: audioFile, spans: null };
+      meta = { file: basename(audioFile), spans: null };
     } else {
       const { provider, ref } = parseVoice(options.voice);
       const request = {
@@ -163,7 +163,7 @@ export async function speak(options: SpeakOptions): Promise<Speech> {
       const result = provider === 'cartesia' ? await cartesiaSpeech(request) : await elevenLabsSpeech(request);
       audioFile = join(TTS_CACHE, `${key}.${result.ext}`);
       await writeFile(audioFile, result.audio);
-      meta = { file: audioFile, spans: result.spans };
+      meta = { file: basename(audioFile), spans: result.spans };
       if (provider === 'elevenlabs') spentCharacters = spoken.length;
     }
     await writeFile(metaFile, JSON.stringify(meta));

@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile } from 'node:fs/promises';
+import { basename, join } from 'node:path';
 
 export const sha = (value: unknown): string =>
   createHash('sha256')
@@ -81,3 +82,11 @@ export async function request(url: string, init: RequestInit, label: string): Pr
 }
 
 export const log = (message: string): void => console.log(message);
+
+/**
+ * A cached file's path. Entries store the file's name inside its cache folder; older entries stored a full
+ * path, sometimes from another machine, so only the name is used.
+ */
+export function cachedPath(dir: string, stored: string): string {
+  return join(dir, basename(stored));
+}

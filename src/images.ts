@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { copyFile, readFile, unlink, writeFile } from 'node:fs/promises';
-import { extname, join } from 'node:path';
+import { basename, extname, join } from 'node:path';
 import { z } from 'zod';
 import { env } from './env.ts';
 import { ffmpeg } from './ffmpeg.ts';
@@ -15,7 +15,7 @@ import {
   type Part,
 } from './gemini.ts';
 import { refsForShot, type Ref, type Scene, type Shot } from './load.ts';
-import { ensureDir, fileSha, log, sha } from './util.ts';
+import { cachedPath, ensureDir, fileSha, log, sha } from './util.ts';
 
 const CACHE = join(env.cacheDir, 'images');
 
@@ -236,6 +236,20 @@ async function plateImage(scene: Scene, shot: Shot): Promise<Image | undefined> 
 
 type CacheEntry = { file: string; attempt: number; issues: string[] };
 
+/** A shot's cache entry with its file resolved, or undefined when there's no entry or its file is gone. */
+async function readEntry(key: string): Promise<CacheEntry | undefined> {
+  const entryFile = join(CACHE, `${key}.json`);
+  if (!existsSync(entryFile)) return undefined;
+  const stored = JSON.parse(await readFile(entryFile, 'utf8')) as CacheEntry;
+  const file = cachedPath(CACHE, stored.file);
+  return existsSync(file) ? { ...stored, file } : undefined;
+}
+
+/** Saves an entry with its file stored by name, so the cache works from any folder or machine. */
+async function writeEntry(key: string, entry: CacheEntry): Promise<void> {
+  await writeFile(join(CACHE, `${key}.json`), JSON.stringify({ ...entry, file: basename(entry.file) }));
+}
+
 /** Returns the image for a shot: cached, from image_file, or generated (and checked) now. */
 export async function shotImage(scene: Scene, shot: Shot, options: ImageOptions): Promise<ShotImage> {
   if (shot.imageFile !== undefined) {
@@ -249,18 +263,17 @@ export async function shotImage(scene: Scene, shot: Shot, options: ImageOptions)
   const prompt = buildPrompt(scene, shot);
   const key = await imageKey(scene, shot, options.mock);
   await ensureDir(CACHE);
-  const entryFile = join(CACHE, `${key}.json`);
 
-  if (!options.regen && existsSync(entryFile)) {
-    const entry = JSON.parse(await readFile(entryFile, 'utf8')) as CacheEntry;
-    if (existsSync(entry.file)) return { ...entry, generated: 0, cached: true };
+  if (!options.regen) {
+    const entry = await readEntry(key);
+    if (entry !== undefined) return { ...entry, generated: 0, cached: true };
   }
 
   if (options.mock) {
     const file = join(CACHE, `${key}.png`);
     await mockImage(scene, shot, file);
     const entry: CacheEntry = { file, attempt: 1, issues: [] };
-    await writeFile(entryFile, JSON.stringify(entry));
+    await writeEntry(key, entry);
     return { ...entry, generated: 0, cached: false };
   }
 
@@ -307,7 +320,7 @@ async function saveEntry(key: string, image: Image, attempt: number, issues: str
   const file = join(CACHE, `${key}-${Date.now()}${EXT_BY_MIME[image.mime] ?? '.png'}`);
   await writeFile(file, image.data);
   const entry: CacheEntry = { file, attempt, issues };
-  await writeFile(join(CACHE, `${key}.json`), JSON.stringify(entry));
+  await writeEntry(key, entry);
   return entry;
 }
 
@@ -327,11 +340,10 @@ export async function fixShot(scene: Scene, shot: Shot, instruction: string): Pr
     return file;
   }
   const key = await imageKey(scene, shot, false);
-  const entryFile = join(CACHE, `${key}.json`);
-  if (!existsSync(entryFile)) {
+  const current = await readEntry(key);
+  if (current === undefined) {
     throw new Error(`Shot ${shot.id} has no image yet. Run: pnpm render <scene> --images-only`);
   }
-  const current = JSON.parse(await readFile(entryFile, 'utf8')) as CacheEntry;
   const image: Image = {
     data: await readFile(current.file),
     mime: MIME_BY_EXT[extname(current.file).toLowerCase()] ?? 'image/png',
@@ -348,10 +360,8 @@ export async function fixShot(scene: Scene, shot: Shot, instruction: string): Pr
 export async function currentImage(scene: Scene, shot: Shot): Promise<string | undefined> {
   if (shot.imageFile !== undefined) return undefined;
   if (shot.keptFile !== undefined) return shot.keptFile;
-  const entryFile = join(CACHE, `${await imageKey(scene, shot, false)}.json`);
-  if (!existsSync(entryFile)) return undefined;
-  const entry = JSON.parse(await readFile(entryFile, 'utf8')) as CacheEntry;
-  return existsSync(entry.file) ? entry.file : undefined;
+  const entry = await readEntry(await imageKey(scene, shot, false));
+  return entry?.file;
 }
 
 export type KeepResult = 'kept' | 'already kept' | 'no image';
@@ -371,5 +381,6 @@ export async function needsImage(scene: Scene, shot: Shot, options: ImageOptions
   if (shot.imageFile !== undefined || options.mock) return false;
   if (options.regen) return true;
   if (shot.keptFile !== undefined) return false;
-  return !existsSync(join(CACHE, `${await imageKey(scene, shot, false)}.json`));
+  // Same test as shotImage, so the cost guard counts exactly the images a render would pay for.
+  return (await readEntry(await imageKey(scene, shot, false))) === undefined;
 }
