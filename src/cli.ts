@@ -8,6 +8,7 @@ import { parseVoice, speak } from './speech.ts';
 import { ffmpegInfo, REQUIRED_FILTERS } from './ffmpeg.ts';
 import { listModels } from './gemini.ts';
 import { fixShot, keepShot } from './images.ts';
+import { withSpend } from './ledger.ts';
 import { loadScene } from './load.ts';
 import { render } from './render.ts';
 import { log, mapPool } from './util.ts';
@@ -129,7 +130,7 @@ async function playVoice(voice: string, say?: string): Promise<void> {
     return;
   }
   // Same settings as a --draft render, so the line is reused there.
-  const speech = await speak({ text: say, voice, draft: true, mock: false });
+  const speech = await withSpend({ reason: 'audition' }, () => speak({ text: say, voice, draft: true, mock: false }));
   const cost = speech.spentCharacters > 0 ? ` (${speech.spentCharacters} ElevenLabs credits)` : speech.fresh ? '' : ' (cached)';
   log(`▶ ${voice}: "${say}"${cost}`);
   await play(speech.file);

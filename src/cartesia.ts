@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { env, requireKey } from './env.ts';
+import { paidRequest } from './ledger.ts';
 import type { Span, Synthesized, SynthRequest } from './speech.ts';
 import { ensureDir, request } from './util.ts';
 
@@ -103,7 +104,7 @@ export async function cartesiaSpeech(request_: SynthRequest): Promise<Synthesize
     ...(settings?.emotion === undefined ? {} : { emotion: settings.emotion }),
   };
 
-  const response = await request(
+  const response = await paidRequest(
     `${API}/tts/sse`,
     {
       method: 'POST',
@@ -119,6 +120,7 @@ export async function cartesiaSpeech(request_: SynthRequest): Promise<Synthesize
       }),
     },
     `Cartesia speech for "${request_.spoken.slice(0, 40)}"`,
+    { provider: 'cartesia', kind: 'speech', model: request_.model, units: request_.spoken.length, unit: 'characters' },
   );
 
   const chunks: Buffer[] = [];

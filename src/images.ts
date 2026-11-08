@@ -16,6 +16,7 @@ import {
 } from './gemini.ts';
 import { refsForShot, type Ref, type Scene, type Shot } from './load.ts';
 import { cachedPath, ensureDir, fileSha, linkOrCopy, log, sha } from './util.ts';
+import { withSpend } from './ledger.ts';
 import { saveVersion } from './versions.ts';
 
 const CACHE = join(env.cacheDir, 'images');
@@ -124,6 +125,7 @@ async function generate(prompt: string, refs: Ref[], aspect: string, mode?: Mode
     parts,
     { responseModalities: ['TEXT', 'IMAGE'], imageConfig: { aspectRatio: aspect, imageSize: env.imageSize } },
     mode === undefined ? 'Gemini image' : `Gemini image ${mode.kind}`,
+    { provider: 'gemini', kind: 'image', model: env.imageModel, units: 1, unit: 'images', usd: env.imageCostUsd },
   );
   const image = responseParts(response)
     .filter((part) => part.inlineData !== undefined && part.thought !== true)
@@ -178,6 +180,7 @@ async function check(
     parts,
     { responseMimeType: 'application/json', temperature: 0 },
     'Gemini check',
+    { provider: 'gemini', kind: 'image-check', model: env.checkModel, units: 1, unit: 'calls' },
   );
   try {
     return verdictSchema.parse(JSON.parse(responseText(response)));
@@ -293,8 +296,9 @@ export async function shotImage(scene: Scene, shot: Shot, options: ImageOptions)
           ? undefined
           : { kind: 'plate', image: plate, relight: shot.plate?.relight ?? false };
     let image: Image;
+    const reason = attempt > 1 ? 'checker retry' : options.regen ? 'redraw' : 'first draw';
     try {
-      image = await generate(prompt, refs, scene.aspect, mode);
+      image = await withSpend({ scene: scene.id, shot: shot.id, reason }, () => generate(prompt, refs, scene.aspect, mode));
       generated++;
     } catch (error) {
       if (error instanceof NoImageError && attempt < env.imageMaxAttempts) {
@@ -303,7 +307,9 @@ export async function shotImage(scene: Scene, shot: Shot, options: ImageOptions)
       }
       throw error;
     }
-    const verdict = options.check ? await check(image, refs, prompt, shot.avoid) : { ok: true, issues: [] };
+    const verdict = options.check
+      ? await withSpend({ scene: scene.id, shot: shot.id, reason: 'check' }, () => check(image, refs, prompt, shot.avoid))
+      : { ok: true, issues: [] };
     const issues = verdict.ok ? [] : verdict.issues;
     // Every attempt was paid for, so each is kept as a version, not only the best one.
     const version = await saveVersion(scene, shot, image, { reason: 'attempt', attempt, issues });
@@ -338,7 +344,9 @@ export async function fixShot(scene: Scene, shot: Shot, instruction: string): Pr
   if (shot.keptFile !== undefined) {
     // A kept image is edited in place and stays kept.
     const image: Image = { data: await readFile(shot.keptFile), mime: MIME_BY_EXT[extname(shot.keptFile).toLowerCase()] ?? 'image/png' };
-    const fixed = await generate(buildPrompt(scene, shot), refsForShot(scene, shot), scene.aspect, { kind: 'edit', image, fixes: [instruction] });
+    const fixed = await withSpend({ scene: scene.id, shot: shot.id, reason: 'fix' }, () =>
+    generate(buildPrompt(scene, shot), refsForShot(scene, shot), scene.aspect, { kind: 'edit', image, fixes: [instruction] }),
+  );
     await saveVersion(scene, shot, { path: shot.keptFile }, { reason: 'kept-before-fix' });
     await saveVersion(scene, shot, fixed, { reason: 'fix', instruction });
     const file = shot.keptFile.replace(/\.[a-z]+$/i, EXT_BY_MIME[fixed.mime] ?? '.png');
@@ -358,7 +366,9 @@ export async function fixShot(scene: Scene, shot: Shot, instruction: string): Pr
     data: await readFile(current.file),
     mime: MIME_BY_EXT[extname(current.file).toLowerCase()] ?? 'image/png',
   };
-  const fixed = await generate(buildPrompt(scene, shot), refsForShot(scene, shot), scene.aspect, { kind: 'edit', image, fixes: [instruction] });
+  const fixed = await withSpend({ scene: scene.id, shot: shot.id, reason: 'fix' }, () =>
+    generate(buildPrompt(scene, shot), refsForShot(scene, shot), scene.aspect, { kind: 'edit', image, fixes: [instruction] }),
+  );
   const version = await saveVersion(scene, shot, fixed, { reason: 'fix', instruction });
   const entry = await saveEntry(key, fixed, current.attempt + 1, [], version);
   return entry.file;

@@ -8,6 +8,7 @@ import { elevenLabsCost, parseVoice, speak, type Speech } from './speech.ts';
 import { ffmpegInfo, probeDuration, REQUIRED_FILTERS } from './ffmpeg.ts';
 import { needsImage, shotImage, unkeepShot, type ShotImage } from './images.ts';
 import { loadScene, type Scene } from './load.ts';
+import { withSpend } from './ledger.ts';
 import { withSceneLock } from './lock.ts';
 import { buildTimeline, type TimedShot } from './timeline.ts';
 import { ensureDir, log, mapPool } from './util.ts';
@@ -181,15 +182,17 @@ async function voiceLines(run: Run): Promise<Speech[][]> {
   return mapPool(scene.shots, 2, (shot) =>
     mapPool(shot.lines, 2, async (line) => {
       run.check();
-      const speech = await speak({
-        text: line.text,
-        voice: line.voice,
-        settings: line.settings,
-        draft: options.draft,
-        mock: options.mock,
-        previousText: neighbour(line, -1),
-        nextText: neighbour(line, 1),
-      });
+      const speech = await withSpend({ scene: scene.id, shot: shot.id, reason: options.draft ? 'draft line' : 'line' }, () =>
+        speak({
+          text: line.text,
+          voice: line.voice,
+          settings: line.settings,
+          draft: options.draft,
+          mock: options.mock,
+          previousText: neighbour(line, -1),
+          nextText: neighbour(line, 1),
+        }),
+      );
       run.emit({ type: 'progress', stage: 'voices', done: ++done, total: allLines.length });
       return speech;
     }),
@@ -217,7 +220,7 @@ async function makeSounds(run: Run, timeline: { shots: TimedShot[] }): Promise<E
     return created;
   };
   return each(run, 'sound', layers, 2, async (layer) => {
-    const effect = await effectFor(layer.sound, layer.length);
+    const effect = await withSpend({ scene: scene.id, reason: 'sound effect' }, () => effectFor(layer.sound, layer.length));
     return { file: effect.file, generated: effect.generated, start: layer.start, volume: layer.volume, voice: false as const };
   });
 }

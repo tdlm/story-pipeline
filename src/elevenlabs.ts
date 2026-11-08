@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { env, requireKey } from './env.ts';
+import { paidRequest } from './ledger.ts';
 import { ffmpeg } from './ffmpeg.ts';
 import { spansFromCharacters, type Synthesized, type SynthRequest } from './speech.ts';
 import { ensureDir, request, sha } from './util.ts';
@@ -27,7 +28,7 @@ export async function elevenLabsSpeech(request_: SynthRequest): Promise<Synthesi
           use_speaker_boost: settings.use_speaker_boost,
           speed: settings.speed === undefined ? undefined : Math.min(1.2, Math.max(0.7, settings.speed)),
         };
-  const response = await request(
+  const response = await paidRequest(
     `${API}/v1/text-to-speech/${encodeURIComponent(request_.voice)}/with-timestamps?output_format=mp3_44100_128`,
     {
       method: 'POST',
@@ -41,6 +42,7 @@ export async function elevenLabsSpeech(request_: SynthRequest): Promise<Synthesi
       }),
     },
     `ElevenLabs speech for "${request_.spoken.slice(0, 40)}"`,
+    { provider: 'elevenlabs', kind: 'speech', model: request_.model, units: request_.spoken.length, unit: 'characters' },
   );
   const body = (await response.json()) as {
     audio_base64: string;
@@ -73,10 +75,11 @@ export async function soundEffect(text: string, seconds: number, mock: boolean):
     return { file, generated: false };
   }
 
-  const response = await request(
+  const response = await paidRequest(
     `${API}/v1/sound-generation?output_format=mp3_44100_128`,
     { method: 'POST', headers: headers(), body: JSON.stringify({ text, duration_seconds: duration }) },
     `ElevenLabs sound effect "${text.slice(0, 40)}"`,
+    { provider: 'elevenlabs', kind: 'sound-effect', units: duration, unit: 'seconds' },
   );
   await writeFile(file, Buffer.from(await response.arrayBuffer()));
   return { file, generated: true };

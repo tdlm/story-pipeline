@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { extname } from 'node:path';
 import { requireKey } from './env.ts';
+import { paidRequest, type Spend } from './ledger.ts';
 import { request } from './util.ts';
 
 export type Part = { text: string } | { inline_data: { mime_type: string; data: string } };
@@ -40,8 +41,9 @@ export async function generateContent(
   parts: Part[],
   generationConfig: Record<string, unknown>,
   label: string,
+  spend: Spend,
 ): Promise<GeminiResponse> {
-  const response = await request(
+  const response = await paidRequest(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
       method: 'POST',
@@ -49,6 +51,7 @@ export async function generateContent(
       body: JSON.stringify({ contents: [{ role: 'user', parts }], generationConfig }),
     },
     label,
+    spend,
   );
   return (await response.json()) as GeminiResponse;
 }
