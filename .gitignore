@@ -4,6 +4,8 @@ node_modules/
 .cache/
 out/
 .studio/
+studio/web/.next/
+studio/web/next-env.d.ts
 .env
 .git-backup-*/
 
