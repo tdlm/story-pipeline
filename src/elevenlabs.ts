@@ -67,7 +67,7 @@ export async function soundEffect(text: string, seconds: number, mock: boolean):
 
   if (mock) {
     await ffmpeg([
-      '-f', 'lavfi', '-i', `anoisesrc=color=brown:amplitude=0.05:duration=${duration}`,
+      '-f', 'lavfi', '-i', `anoisesrc=color=brown:amplitude=0.05:seed=7:duration=${duration}`,
       '-ac', '1', '-ar', '44100', '-c:a', 'libmp3lame', '-q:a', '6', file,
     ]);
     return { file, generated: false };
