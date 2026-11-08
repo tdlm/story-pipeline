@@ -1,0 +1,182 @@
+# HATCH, Part 4: Count Your People.
+# Written for the "send her for the pantry first" result of Part 3's vote (about 26 to 1; said as 95%).
+# Cold open (a test, see INSIGHTS.md): Dana running back with the food, then the vote result.
+# The figure from Parts 2 and 3 stands on the Hendersons' porch, watching. Never explained.
+# The hatch opens for the first time: decontamination at the ladder ("Only in drills" plants the
+# drill scripts; don't explain it). Dana inside; Milo likes her (canon: Milo wags at the living).
+# 6:14: the first static. The tape is cut off and three slow knocks come through the hiss (a line from
+# the game's eerie radio list). He calls it static. The count: four. The vent cap is choking on ash,
+# so he suits up. The knock code: two, then three (pay it off later). Vote: trust Dana to let him back in (she bolts it), or leave the hatch unlocked.
+#
+# Plates: monitor shots are cut from Part 2's kept `vote` image (screen at about x 0.71, y 0.52).
+# Room shots use refs/basement.jpg (cot ~0.3, ladder ~0.57, pipe ~0.66).
+# Shots 4, 6, 7, 8 and 10 reuse Part 2's kept images.
+
+title: Count Your People
+cast: cast.yaml
+aspect: "9:16"
+header: "HATCH · PART 4"
+
+shots:
+  - id: run
+    cast: [dana]
+    props: [monitor]
+    plate: kept/ep02/vote.jpg
+    plate_focus: [0.71, 0.52]
+    plate_zoom: 2.5
+    image: >
+      Close-up of the monitor. On the grainy green camera feed (the same fixed view: a bank of
+      ash on the left, the upright steel frame on the right), Dana runs straight toward the
+      camera through the falling ash, hugging an overflowing laundry basket of tins and water
+      bottles, scarf flying, face frightened and determined.
+    avoid: [anyone else on the screen, a creature]
+    move: push-in
+    sfx: wind, ash hissing on a microphone, fast footsteps crunching through ash
+    lines:
+      - narrator: "She has the food. Now she has to make it *back*."
+
+  - id: porch
+    cast: [dana, hooded]
+    props: [monitor]
+    plate: kept/ep02/vote.jpg
+    plate_focus: [0.71, 0.52]
+    plate_zoom: 2.5
+    image: >
+      Close-up of the monitor. On the grainy green camera feed (same fixed view), Dana stands
+      right at the hatch, out of breath, clutching the laundry basket of tins. Far behind her,
+      small in the background across the street, the grey hooded figure stands perfectly still
+      on a neighbour's porch, facing the camera, face hidden.
+    avoid: [a visible face on the hooded figure, glowing eyes, monster or creature features]
+    move: push-in
+    sfx: wind, a burst of intercom static
+    lines:
+      - narrator: "Ninety-five percent of you sent her for it *first*."
+      - dana-intercom: "Open up! *Please*!"
+      - you: "Is it following you?"
+      - dana-intercom: "No. It's just... *standing* there."
+
+  - id: decon
+    location: basement
+    cast: [you, dana]
+    props: [hatch]
+    plate: refs/basement.jpg
+    plate_focus: [0.57, 0.42]
+    plate_zoom: 1.3
+    image: >
+      The square hatch at the top of the ladder is swung open for the first time, flat grey
+      daylight and a few ash flakes drifting down through it. On the top rungs, Dana is peeling
+      off her ash-covered teal puffer jacket, grey dust falling from it. The survivor stands on
+      the lower rungs below her, holding a stiff brush and a metal bucket, looking up sternly.
+    avoid: [hazmat suit, the dog or the cat on the ladder, anyone else]
+    move: pan-up
+    sfx: heavy bolts sliding back, a steel hatch swinging open, wind rushing in
+    lines:
+      - you: "Coat off. Gloves off. Anything with ash on it stays *up there*."
+      - dana: "It's *freezing*."
+      - you: "It's *ash*."
+      - dana: "...You've done this before."
+      - you: "Only in *drills*."
+
+  - id: sealed
+    image_file: kept/ep02/sealed.jpg
+    move: push-in
+    hold: 1.8
+    sfx: heavy steel hatch slamming shut, then a bolt sliding home
+    sfx_volume: 0.9
+
+  - id: inside
+    location: basement
+    cast: [you, dana, dog, cat]
+    plate: refs/basement.jpg
+    plate_focus: [0.45, 0.6]
+    image: >
+      Dana stands on the rug in a plain grey sweater and socks, no jacket, clean of ash, looking
+      around the shelter, half amazed and half embarrassed. The survivor stands beside her with
+      his arms crossed, a small dry smile. The dog sniffs her hand, tail wagging. The cat stands
+      on the workbench with his back arched and fur up, glaring at her.
+    avoid: [ash on Dana's clothes, Dana's jacket, open hatch, light at the hatch edges]
+    move: push-in
+    sfx: low warm electrical hum, a dog's tail thumping, a cat hissing
+    lines:
+      - dana: "Twenty years, I called you *crazy*."
+      - you: "Twenty-*two*."
+      - dana: "I'm sorry. I was *wrong*."
+      - narrator: "Milo likes her. Zoey does *not*."
+
+  - id: six-fourteen
+    image_file: kept/ep02/six-fourteen.jpg
+    move: push-in
+    sfx: radio switching on, crackling static
+    lines:
+      - narrator: "Six fourteen."
+
+  # The tape is swallowed by static, and three slow knocks come through the hiss.
+  # If the static lands on the line or too late, move the `at` times.
+  - id: lantern
+    image_file: kept/ep02/lantern.jpg
+    move: push-in
+    hold: 6.5
+    sfx:
+      - { sound: "loud harsh radio static, rising and swallowing everything", at: 3.0, seconds: 3.5, volume: 0.7 }
+      - { sound: "one single slow knock on steel heard faintly through a radio speaker, under static", at: 3.8, seconds: 1, volume: 0.8 }
+      - { sound: "one single slow knock on steel heard faintly through a radio speaker, under static", at: 4.7, seconds: 1, volume: 0.8 }
+      - { sound: "one single slow knock on steel heard faintly through a radio speaker, under static", at: 5.6, seconds: 1, volume: 0.8 }
+    lines:
+      - radio: "Count your people. Keep the lights..."
+
+  - id: static
+    image_file: kept/ep02/six-fourteen.jpg
+    move: still
+    sfx: faint radio static fading out
+    sfx_volume: 0.3
+    lines:
+      - dana: "Was that the *radio*?"
+      - you: "...*Static*."
+
+  - id: four
+    location: basement
+    cast: [you, dana, dog, cat]
+    plate: refs/basement.jpg
+    plate_focus: [0.32, 0.62]
+    image: >
+      The survivor sits on the edge of his cot holding up four fingers, deadpan. Dana sits on an
+      upturned crate opposite him in her grey sweater, eating from an open tin of peaches with a
+      spoon. The dog lies at his feet. The cat sits on the survivor's shoulder, glaring at Dana.
+    avoid: [open hatch, light at the hatch edges, anyone else]
+    move: push-in
+    lines:
+      - you: "That's *four*."
+      - dana: "You count the cat?"
+      - you: "The cat counts *himself*."
+
+  - id: crank
+    image_file: kept/ep02/crank.jpg
+    move: push-in
+    sfx: a rusty hand crank grinding hard, a fan choking and sputtering
+    lines:
+      - narrator: "By night, the crank is fighting *back*."
+      - dana: "Let me take a turn."
+      - you: "It's not your arm. Ash is choking the vent *cap*."
+
+  - id: suit
+    location: basement
+    cast: [you, dana, dog]
+    props: [hatch]
+    plate: refs/basement.jpg
+    plate_focus: [0.55, 0.6]
+    image: >
+      At the foot of the ladder, the survivor is zipping up his mustard-yellow hazmat suit, the
+      round helmet with its dark visor tucked under one arm, his mustard beanie still on. Dana
+      stands near him in her grey sweater, arms folded, worried. The laundry basket of tins sits
+      on the floor beside the ladder. The dog sits at his feet, looking up at him.
+    avoid: [open hatch, light at the hatch edges, anyone else]
+    move: push-in
+    hold: 4
+    lines:
+      - dana: "You're going up there? With *them*?"
+      - you: "Bolt it behind me. Don't open it for *anyone*."
+      - dana: "How will I know it's *you*?"
+      - you: "Two knocks. Then *three*."
+      - dana: "Two... then three."
+      - narrator: "Trust Dana to let you back in? Or leave the hatch *unlocked*?"
+      - narrator: "Comment *one* or *two*."
