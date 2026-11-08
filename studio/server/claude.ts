@@ -1,24 +1,16 @@
 import { existsSync, realpathSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { basename, join, resolve, sep } from 'node:path';
-import { createSdkMcpServer, query, tool } from '@anthropic-ai/claude-agent-sdk';
+import { createSdkMcpServer, tool } from '@anthropic-ai/claude-agent-sdk';
+import { runAgent } from './agent.ts';
 import { z } from 'zod';
 import { ROOT } from '../../src/env.ts';
 import type { Draft, TurnEvent } from './api-types.ts';
 import { attachmentsDir, propose, saveDraft, showDir } from './drafts.ts';
 import { showContext } from './shows.ts';
 
-/** The Claude model for writing. Settings will let you choose per step; the app never switches on its own. */
-const MODEL = process.env.STUDIO_MODEL ?? 'claude-opus-5-5';
 const STUDIO = join(ROOT, 'studio');
 const running = new Set<string>();
-
-/** Use the Claude login (Max plan), never an API key that happens to be in the environment. */
-function childEnv(): Record<string, string | undefined> {
-  const copy = { ...process.env };
-  delete copy.ANTHROPIC_API_KEY;
-  return copy;
-}
 
 const real = (path: string): string => (existsSync(path) ? realpathSync(path) : resolve(path));
 const inside = (path: string, dir: string): boolean => path === dir || path.startsWith(dir + sep);
@@ -83,8 +75,6 @@ async function setup(draft: Draft) {
 export async function runTurn(draft: Draft, text: string, emit: (event: TurnEvent) => void, signal: AbortSignal): Promise<void> {
   if (running.has(draft.id)) throw new Error('Claude is already working on this draft.');
   running.add(draft.id);
-  const abort = new AbortController();
-  signal.addEventListener('abort', () => abort.abort());
   try {
     const { systemPrompt, canRead, skill } = await setup(draft);
     draft.messages.push({ role: 'user', text, at: new Date().toISOString() });
@@ -116,66 +106,32 @@ export async function runTurn(draft: Draft, text: string, emit: (event: TurnEven
       ],
     });
 
-    const messages = query({
-      prompt: text,
-      options: {
-        cwd: STUDIO,
-        model: MODEL,
-        env: childEnv(),
-        abortController: abort,
-        systemPrompt,
-        // Isolation: only the studio's own settings, tools and skill.
-        settingSources: ['project'],
-        strictMcpConfig: true,
-        tools: ['Read'],
-        mcpServers: { writer },
-        skills: skill === undefined ? [] : [skill],
-        includePartialMessages: true,
-        ...(draft.sessionId === undefined ? {} : { resume: draft.sessionId }),
-        // Every call is decided here: reads only inside the allowed folders, proposals always, nothing else.
-        canUseTool: async (name, input) => {
-          if (name === 'mcp__writer__propose_file') return { behavior: 'allow', updatedInput: input };
-          if (name === 'Read' && typeof input.file_path === 'string' && canRead(input.file_path)) return { behavior: 'allow', updatedInput: input };
-          if (name === 'Skill') return { behavior: 'allow', updatedInput: input };
-          return { behavior: 'deny', message: `Not allowed in Story Studio: ${name}${typeof input.file_path === 'string' ? ` ${input.file_path}` : ''}` };
-        },
+    const result = await runAgent({
+      text,
+      sessionId: draft.sessionId,
+      systemPrompt,
+      tools: ['Read'],
+      mcpServers: { writer },
+      skills: skill === undefined ? [] : [skill],
+      // Every call is decided here: reads only inside the allowed folders, proposals always, nothing else.
+      canUseTool: async (name, input) => {
+        if (name === 'mcp__writer__propose_file') return { behavior: 'allow', updatedInput: input };
+        if (name === 'Read' && typeof input.file_path === 'string' && canRead(input.file_path)) return { behavior: 'allow', updatedInput: input };
+        if (name === 'Skill') return { behavior: 'allow', updatedInput: input };
+        return { behavior: 'deny', message: `Not allowed in Story Studio: ${name}${typeof input.file_path === 'string' ? ` ${input.file_path}` : ''}` };
       },
+      describe: (name, input) =>
+        name === 'Read' ? `Read ${basename(String(input.file_path ?? ''))}`
+        : name === 'mcp__writer__propose_file' ? `Proposed ${String(input.path ?? 'a file')}`
+        : name === 'Skill' ? 'Used the writing skill'
+        : name,
+      emit,
+      signal,
     });
-
-    let reply = '';
-    const activity: string[] = [];
-    for await (const message of messages) {
-      if (message.type === 'stream_event' && message.parent_tool_use_id === null) {
-        const event = message.event;
-        if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-          reply += event.delta.text;
-          emit({ type: 'text', delta: event.delta.text });
-        }
-        if (event.type === 'content_block_start' && event.content_block.type === 'text' && reply !== '' && !reply.endsWith('\n')) {
-          reply += '\n\n';
-          emit({ type: 'text', delta: '\n\n' });
-        }
-      }
-      if (message.type === 'assistant') {
-        for (const block of message.message.content) {
-          if (block.type !== 'tool_use') continue;
-          const input = block.input as { file_path?: string; path?: string };
-          const note =
-            block.name === 'Read' ? `Read ${basename(input.file_path ?? '')}`
-            : block.name === 'mcp__writer__propose_file' ? `Proposed ${input.path ?? 'a file'}`
-            : block.name === 'Skill' ? 'Used the writing skill'
-            : block.name;
-          activity.push(note);
-          emit({ type: 'activity', note });
-        }
-      }
-      if (message.type === 'system' && message.subtype === 'init') draft.sessionId = message.session_id;
-      if (message.type === 'result') {
-        draft.sessionId = message.session_id;
-        if (message.subtype !== 'success') throw new Error(`Claude stopped: ${message.subtype}`);
-      }
-    }
-    draft.messages.push({ role: 'assistant', text: reply.trim(), at: new Date().toISOString(), activity });
+    draft.sessionId = result.sessionId;
+    const reply = result.reply;
+    const activity = result.activity;
+    draft.messages.push({ role: 'assistant', text: reply, at: new Date().toISOString(), activity });
     draft.updatedAt = new Date().toISOString();
     await saveDraft(draft);
     emit({ type: 'done', draft });
