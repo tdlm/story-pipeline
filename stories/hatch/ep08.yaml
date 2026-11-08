@@ -1,0 +1,180 @@
+# HATCH, Part 8: The Trader.
+# Written for the "Hank's nail gun" result of Part 7's vote (about 10 to 1).
+# Three nails and Carol comes apart into ash, leaving her coat (the game: three nail hits crumble a
+# walker). No gore. He knocks the code, Dana lets him in ahead of Mr. Alvarez. Carol's tomatoes.
+# 6:14: the tape, then the game's trader chatter under the static. The trader at the hatch
+# (camera: pack and a TRADE sign; intercom: the game's line). Milo wags: he's a person.
+# He wants the nail gun; he offers filters and where the broadcast comes from.
+# Vote: trade the only weapon, or keep it and lose the lead. The tower happens either way.
+
+title: The Trader
+cast: cast.yaml
+aspect: "9:16"
+header: "HATCH · PART 8"
+
+shots:
+  - id: result
+    image_file: kept/ep07/pinned.jpg
+    move: push-in
+    lines:
+      - narrator: "Nearly all of you said to use Hank's nail gun. A few of you were very specific about where."
+
+  - id: nails
+    location: across
+    cast: [you, carol]
+    props: [hatch, nail-gun]
+    plate: refs/across.jpg
+    plate_focus: [0.68, 0.6]
+    plate_zoom: 1.7
+    image: >
+      Low angle over the survivor's shoulder as he lies on the grass beside the square steel
+      hatch in his mustard hazmat suit, the yellow-and-black nail gun raised in his gloved hand
+      and aimed up at Carol. Carol (grey curls, long grey coat, greyed with ash) rears back over
+      him, teeth bared. An unlit red flare lies forgotten in the grass. Ash falling.
+    avoid: [his face, blood, wounds, gore, nails sticking out of her, glowing eyes, the hatch on the walkway, anyone else]
+    move: push-in
+    sfx:
+      - { sound: "one loud sharp pneumatic nail gun shot outdoors", at: 0.3, seconds: 1, volume: 0.9 }
+      - { sound: "one loud sharp pneumatic nail gun shot outdoors", at: 0.9, seconds: 1, volume: 0.9 }
+      - { sound: "one loud sharp pneumatic nail gun shot outdoors", at: 1.5, seconds: 1, volume: 0.9 }
+    lines:
+      - narrator: "It takes three nails."
+
+  - id: coat
+    location: across
+    cast: [you]
+    props: [hatch, nail-gun]
+    plate: refs/across.jpg
+    plate_focus: [0.7, 0.62]
+    plate_zoom: 2.6
+    image: >
+      Close on the grass beside the one square steel hatch (keep the hatch exactly where it is in
+      the set image). Carol's long grey hooded coat lies empty and flat on the grass next to it, a
+      drift of fine grey ash spilling out of its collar and sleeves and blowing away in the wind.
+      The survivor kneels beside the coat in his baggy mustard hazmat suit and round helmet, the
+      dark visor showing no face, the nail gun lowered in his lap, head bowed. Quiet and sad.
+    avoid: [his face visible through the visor, more than one hatch, a hatch on the walkway or sidewalk, a body, bones, blood, gore, anyone else]
+    move: push-in
+    sfx: wind, ash hissing softly across grass
+    lines:
+      - narrator: "Then she just comes apart, the way a sandcastle does when the tide gets to it, and all that's left of Carol is her coat."
+      - you: "...I'm sorry, Carol."
+
+  - id: alvarez
+    image_file: kept/ep05/turns.jpg
+    move: push-in
+    sfx: slow shuffling footsteps in ash, getting closer
+    lines:
+      - narrator: "Mr. Alvarez is halfway across the street by now, and he isn't slowing down."
+
+  # The knock code, with room to hear it: two knocks, a pause, three.
+  - id: code
+    image_file: kept/ep05/bolted.jpg
+    move: push-in
+    hold: 3
+    sfx:
+      - { sound: "one single knock of a gloved fist on a thick steel hatch, outdoors", at: 0.3, seconds: 1, volume: 1 }
+      - { sound: "one single knock of a gloved fist on a thick steel hatch, outdoors", at: 0.7, seconds: 1, volume: 1 }
+      - { sound: "one single knock of a gloved fist on a thick steel hatch, outdoors", at: 1.6, seconds: 1, volume: 1 }
+      - { sound: "one single knock of a gloved fist on a thick steel hatch, outdoors", at: 2.0, seconds: 1, volume: 1 }
+      - { sound: "one single knock of a gloved fist on a thick steel hatch, outdoors", at: 2.4, seconds: 1, volume: 1 }
+
+  - id: sealed
+    image_file: kept/ep02/sealed.jpg
+    move: push-in
+    sfx: heavy steel hatch slamming shut, then bolts sliding home
+    sfx_volume: 0.9
+    lines:
+      - narrator: "You knock two, then three, and Dana has the hatch open before you're done."
+      - narrator: "It's bolted again before he reaches the lawn."
+
+  - id: quiet
+    location: basement
+    cast: [you, dana, dog, cat]
+    plate: refs/basement.jpg
+    plate_focus: [0.5, 0.62]
+    image: >
+      The survivor sits on the floor at the foot of the ladder in his slate-blue work coat and
+      mustard beanie, his mustard hazmat suit and round helmet in a heap beside him. He stares at
+      the floor. The dog leans against his side. Across from him, Dana sits on the edge of the cot
+      in her grey sweater, arms around her knees. The cat watches from a shelf. Warm amber light,
+      very quiet.
+    avoid: [open hatch, light at the hatch edges, ash on anyone, anyone else]
+    move: push-in
+    sfx: low warm electrical hum, a light bulb ticking
+    lines:
+      - dana: "She used to bring me tomatoes from her garden every summer. Way too many tomatoes."
+      - you: "Hank used to ramble on about those tomatoes too."
+      - narrator: "Nobody says much for the rest of the day."
+
+  - id: six-fourteen
+    image_file: kept/ep02/six-fourteen.jpg
+    move: push-in
+    sfx: radio switching on, crackling static
+    lines:
+      - narrator: "At six fourteen the next morning, the radio comes on like nothing happened."
+
+  - id: chatter
+    image_file: kept/ep02/lantern.jpg
+    move: push-in
+    sfx: radio static rising and falling, a signal drifting
+    sfx_volume: 0.4
+    lines:
+      - radio: "Six fourteen. This is the Lighthouse station."
+      - trader: "...working the shelters on your side of town today. Fuel, filters, tins..."
+      - narrator: "Under the static there's another voice, reading out a list of streets. Yours is on it."
+
+  - id: trader-feed
+    cast: [trader]
+    props: [monitor]
+    plate: kept/ep02/vote.jpg
+    plate_focus: [0.71, 0.52]
+    plate_zoom: 2.5
+    image: >
+      Close-up of the monitor. On the grainy green camera feed (the same fixed view: a bank of ash
+      on the left, the upright steel frame on the right), a big bearded man with an enormous
+      overstuffed backpack stands at the hatch, holding up a hand-lettered cardboard sign that says
+      TRADE. Calm, patient.
+    avoid: [anyone else on the screen, a monster, glowing eyes]
+    move: push-in
+    sfx:
+      - { sound: "three brisk friendly knocks on a thick steel hatch, muffled from below", at: 0.2, seconds: 2, volume: 0.9 }
+    lines:
+      - trader: "Morning. Trading. Fuel, filters, tins. I'll wait."
+      - dana: "After yesterday, I'm not opening that hatch for anybody."
+      - narrator: "Milo's at the ladder, wagging. Whoever this is, he's still a person."
+
+  - id: offer
+    cast: [trader]
+    props: [monitor]
+    plate: kept/ep02/vote.jpg
+    plate_focus: [0.71, 0.52]
+    plate_zoom: 3
+    image: >
+      Tighter on the monitor's grainy green feed: the bearded trader leans in close to the camera,
+      goggles up on his cap, one eyebrow raised, the TRADE sign lowered at his side. A knowing
+      half-smile.
+    avoid: [anyone else on the screen, a monster, glowing eyes]
+    move: push-in
+    lines:
+      - trader: "I heard a nail gun yesterday. I'd pay a lot for a nail gun."
+      - trader: "A whole case of filters, and I'll tell you where that six fourteen broadcast is coming from."
+      - you: "How would you know that?"
+      - trader: "Because I've *been* there."
+
+  - id: vote
+    cast: [you, dana]
+    props: [monitor, intercom, nail-gun]
+    plate: kept/ep02/vote.jpg
+    image: >
+      The same over-the-shoulder view of the survivor at the monitor, in his slate-blue coat and
+      mustard beanie, his thumb on the intercom's push-to-talk button. On the green feed, the
+      bearded trader waits with his pack. Hank's yellow-and-black nail gun lies on the counter
+      beside the intercom. Behind the survivor, Dana in her grey sweater shakes her head, arms
+      folded.
+    avoid: [open hatch, light at the hatch edges, hazmat suit, anyone else]
+    move: push-in
+    hold: 4
+    lines:
+      - narrator: "Trade away the only weapon you've got? Or keep it, and let him walk off with the only answer anyone's offered you?"
+      - narrator: "Comment *one* or *two*."
