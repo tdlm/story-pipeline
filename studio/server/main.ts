@@ -1,16 +1,20 @@
 import { createReadStream, existsSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
-import { extname, join, resolve, sep } from 'node:path';
+import { extname, join } from 'node:path';
 import { Readable } from 'node:stream';
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
-import { ROOT, env } from '../../src/env.ts';
-import { getEpisode, listShows } from './library.ts';
+import { streamSSE } from 'hono/streaming';
+import type { Draft, TurnEvent } from './api-types.ts';
+import { runTurn } from './claude.ts';
+import { accept, addAttachments, createDraft, listDrafts, loadDraft, saveDraft } from './drafts.ts';
+import { runFakeTurn } from './fake-claude.ts';
+import { STORIES, getEpisode, listShows } from './library.ts';
+import { mediaFile } from './media.ts';
+import { SHOW_ID, showContext } from './shows.ts';
 
 export const PORT = Number(process.env.STUDIO_API_PORT ?? 4310);
 
-/** The only folders the media route serves from. Never the project root, so .env is never reachable. */
-const MEDIA_ROOTS = [join(ROOT, 'stories'), env.outDir, join(env.cacheDir, 'images'), join(env.studioDir, 'versions')];
 
 const TYPES: Record<string, string> = {
   '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp',
@@ -35,12 +39,115 @@ app.get('/api/shows/:show/episodes/:episode', async (c) => {
   return episode === undefined ? c.json({ error: 'Not found' }, 404) : c.json(episode);
 });
 
+// Drafts: writing the next part, or a new show, with Claude.
+const FAKE = process.env.STUDIO_FAKE_CLAUDE === '1';
+const files = (body: Record<string, unknown>): File[] => {
+  const value = body['files'];
+  return (Array.isArray(value) ? value : [value]).filter((f): f is File => f instanceof File && f.size > 0);
+};
+const field = (body: Record<string, unknown>, name: string): string => (typeof body[name] === 'string' ? (body[name] as string).trim() : '');
+const slug = (text: string): string => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+app.get('/api/drafts', async (c) =>
+  c.json((await listDrafts()).map(({ id, kind, show, title, updatedAt, proposals }) => ({
+    id, kind, show, title, updatedAt, pending: proposals.filter((p) => p.status === 'pending').length,
+  }))),
+);
+
+app.post('/api/drafts', async (c) => {
+  const body = await c.req.parseBody({ all: true });
+  const kind = field(body, 'kind') === 'new-show' ? 'new-show' : 'next-part';
+  const attachments = files(body);
+  const attachedNote = attachments.length > 0 ? `\nI attached ${attachments.length} file${attachments.length === 1 ? '' : 's'}; read ${attachments.length === 1 ? 'it' : 'them'} first.` : '';
+  if (kind === 'next-part') {
+    const show = field(body, 'show');
+    if (!SHOW_ID.test(show) || !existsSync(join(STORIES, show, 'cast.yaml'))) return c.json({ error: 'No such show.' }, 400);
+    const context = await showContext(show);
+    const vote = field(body, 'vote');
+    const notes = field(body, 'notes');
+    const kickoff = [
+      `Next part: ${context.nextEpisodeFile}.`,
+      vote === '' ? 'No vote this time.' : `Vote result: ${vote}`,
+      notes === '' ? '' : `My notes: ${notes}`,
+      attachedNote,
+      'Read the context and the recent episodes, then propose an outline for the next part as numbered beats. Don\'t write the script yet.',
+    ].filter(Boolean).join('\n');
+    const draft = await createDraft({ kind, show, title: `${context.name}: ${context.nextEpisodeFile.replace('.yaml', '')}`, kickoff, skill: context.skill, files: attachments });
+    return c.json({ id: draft.id });
+  }
+  const title = field(body, 'title');
+  const show = slug(title);
+  if (show === '' || !SHOW_ID.test(show)) return c.json({ error: 'Give the show a name.' }, 400);
+  if (existsSync(join(STORIES, show))) return c.json({ error: `There's already a show folder named ${show}.` }, 400);
+  const pitch = field(body, 'pitch');
+  const kickoff = [
+    `New show: "${title}".`,
+    pitch === '' ? '' : `Pitch: ${pitch}`,
+    attachedNote,
+    'Read the format examples, then suggest a one-paragraph premise and ask me up to three questions that would change the show most. Don\'t propose files yet.',
+  ].filter(Boolean).join('\n');
+  const draft = await createDraft({ kind, show, title, kickoff, files: attachments });
+  return c.json({ id: draft.id });
+});
+
+const withDraft = async (id: string): Promise<Draft | undefined> => loadDraft(id);
+
+app.get('/api/drafts/:id', async (c) => {
+  const draft = await withDraft(c.req.param('id'));
+  return draft === undefined ? c.json({ error: 'Not found' }, 404) : c.json(draft);
+});
+
+app.post('/api/drafts/:id/attachments', async (c) => {
+  const draft = await withDraft(c.req.param('id'));
+  if (draft === undefined) return c.json({ error: 'Not found' }, 404);
+  await addAttachments(draft, files(await c.req.parseBody({ all: true })));
+  await saveDraft(draft);
+  return c.json(draft);
+});
+
+// One turn with Claude, streamed as server-sent events.
+app.post('/api/drafts/:id/turn', async (c) => {
+  const draft = await withDraft(c.req.param('id'));
+  if (draft === undefined) return c.json({ error: 'Not found' }, 404);
+  const { text } = (await c.req.json()) as { text?: string };
+  if (typeof text !== 'string' || text.trim() === '') return c.json({ error: 'Say something.' }, 400);
+  return streamSSE(c, async (stream) => {
+    const emit = (event: TurnEvent): void => {
+      void stream.writeSSE({ data: JSON.stringify(event) });
+    };
+    try {
+      if (FAKE) await runFakeTurn(draft, text.trim(), emit);
+      else await runTurn(draft, text.trim(), emit, c.req.raw.signal);
+    } catch (error) {
+      emit({ type: 'error', message: (error as Error).message });
+    }
+  });
+});
+
+app.post('/api/drafts/:id/proposals/:proposal/:action', async (c) => {
+  const draft = await withDraft(c.req.param('id'));
+  if (draft === undefined) return c.json({ error: 'Not found' }, 404);
+  const action = c.req.param('action');
+  try {
+    if (action === 'accept') await accept(draft, c.req.param('proposal'));
+    else if (action === 'dismiss') {
+      const proposal = draft.proposals.find((p) => p.id === c.req.param('proposal') && p.status === 'pending');
+      if (proposal === undefined) throw new Error('That proposal is no longer pending.');
+      proposal.status = 'dismissed';
+    } else return c.json({ error: 'Unknown action' }, 400);
+  } catch (error) {
+    return c.json({ error: (error as Error).message }, 409);
+  }
+  draft.updatedAt = new Date().toISOString();
+  await saveDraft(draft);
+  return c.json(draft);
+});
+
 // Images and video, with range requests so the video player can seek.
 app.get('/api/media/*', async (c) => {
-  const rel = decodeURIComponent(c.req.path.slice('/api/media/'.length));
-  const file = resolve(ROOT, rel);
-  const type = TYPES[extname(file).toLowerCase()];
-  if (type === undefined || !MEDIA_ROOTS.some((root) => file.startsWith(root + sep)) || !existsSync(file)) {
+  const file = mediaFile(c.req.path.slice('/api/media/'.length));
+  const type = file === undefined ? undefined : TYPES[extname(file).toLowerCase()];
+  if (file === undefined || type === undefined || !existsSync(file)) {
     return c.text('Not found', 404);
   }
   const { size } = await stat(file);

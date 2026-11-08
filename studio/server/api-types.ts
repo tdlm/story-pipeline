@@ -51,3 +51,59 @@ export type EpisodeDetail = EpisodeSummary & {
   shotList: ShotDetail[];
   video?: { kind: 'final' | 'draft'; url: string };
 };
+
+export type ProposalPreview = {
+  title: string;
+  header?: string;
+  shots: { number: number; id: string; prompt?: string; imageFile?: string; lines: { speaker: string; text: string }[] }[];
+};
+
+/** A file Claude wants to add or change. Nothing is written until you accept it. */
+export type Proposal = {
+  id: string;
+  /** The file, as stories/<show>/<file>, such as stories/hatch/ep12.yaml. */
+  path: string;
+  summary: string;
+  content: string;
+  /** The file as it was when proposed; absent for a new file. */
+  before?: string;
+  /** Hash of `before`, checked again on accept; null for a new file. */
+  baseSha: string | null;
+  status: 'pending' | 'accepted' | 'dismissed' | 'replaced';
+  createdAt: string;
+  /** For episodes: the shots, for a readable preview. */
+  preview?: ProposalPreview;
+};
+
+export type DraftMessage = {
+  role: 'user' | 'assistant';
+  text: string;
+  at: string;
+  /** Short notes on what Claude did during the turn, such as "Read ARC.md". */
+  activity?: string[];
+};
+
+export type Draft = {
+  id: string;
+  kind: 'next-part' | 'new-show';
+  show: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  /** The writing skill to invoke when drafting, such as scottify. */
+  skill: string;
+  /** The first message, sent when the draft opens. */
+  kickoff?: string;
+  sessionId?: string;
+  messages: DraftMessage[];
+  proposals: Proposal[];
+  attachments: { name: string; size: number; type: string }[];
+};
+
+/** Streamed to the page while Claude works on a turn. */
+export type TurnEvent =
+  | { type: 'text'; delta: string }
+  | { type: 'activity'; note: string }
+  | { type: 'proposal'; proposal: Proposal }
+  | { type: 'done'; draft: Draft }
+  | { type: 'error'; message: string };

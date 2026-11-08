@@ -13,7 +13,7 @@ const UPDATE = process.env.UPDATE_SNAPSHOTS === '1';
 
 const STORIES = join(ROOT, 'stories');
 const scenes = readdirSync(STORIES, { recursive: true, encoding: 'utf8' })
-  .filter((file) => file.endsWith('.yaml') && basename(file) !== 'cast.yaml')
+  .filter((file) => file.endsWith('.yaml') && !['cast.yaml', 'show.yaml'].includes(basename(file)))
   .sort();
 
 /** A line's length as the mock render voices it (src/speech.ts), without making any audio. */

@@ -1,15 +1,14 @@
 import { existsSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
-import { basename, join, relative } from 'node:path';
-import { ROOT, env } from '../../src/env.ts';
+import { basename, join } from 'node:path';
+import { env } from '../../src/env.ts';
 import { currentImage } from '../../src/images.ts';
 import { loadScene, type Scene, type Shot } from '../../src/load.ts';
+import { mediaUrl } from './media.ts';
 import type { EpisodeDetail, EpisodeStage, EpisodeSummary, ShotDetail, ShotState, ShowSummary } from './api-types.ts';
 
-export const STORIES = join(ROOT, 'stories');
+export const STORIES = env.storiesDir;
 
-/** URL the server serves a project file at. Only files under MEDIA_ROOTS are served. */
-export const mediaUrl = (file: string): string => `/api/media/${relative(ROOT, file).split('/').map(encodeURIComponent).join('/')}`;
 
 /** Show and episode ids come from URLs, so they must be plain names. */
 const SAFE_ID = /^[a-z0-9][a-z0-9_-]*$/i;
@@ -36,9 +35,11 @@ async function shotState(scene: Scene, shot: Shot): Promise<{ state: ShotState; 
 function videoFor(scene: Scene): EpisodeDetail['video'] {
   const dir = join(env.outDir, scene.slug);
   const final = join(dir, `${scene.slug}.mp4`);
-  if (existsSync(final)) return { kind: 'final', url: mediaUrl(final) };
+  const finalUrl = mediaUrl(final);
+  if (existsSync(final) && finalUrl !== undefined) return { kind: 'final', url: finalUrl };
   const draft = join(dir, `${scene.slug}-draft.mp4`);
-  if (existsSync(draft)) return { kind: 'draft', url: mediaUrl(draft) };
+  const draftUrl = mediaUrl(draft);
+  if (existsSync(draft) && draftUrl !== undefined) return { kind: 'draft', url: draftUrl };
   return undefined;
 }
 
@@ -115,7 +116,7 @@ export async function listShows(): Promise<ShowSummary[]> {
     dirs.map(async (entry) => {
       const dir = join(STORIES, entry.name);
       const show = { id: entry.name, name: await showName(dir, entry.name) };
-      const files = (await readdir(dir)).filter((file) => file.endsWith('.yaml') && file !== 'cast.yaml').sort();
+      const files = (await readdir(dir)).filter((file) => file.endsWith('.yaml') && !['cast.yaml', 'show.yaml'].includes(file)).sort();
       const episodes = await Promise.all(
         files.map(async (file): Promise<EpisodeSummary> => {
           try {
@@ -135,7 +136,7 @@ export async function listShows(): Promise<ShowSummary[]> {
 }
 
 export async function getEpisode(showId: string, episodeId: string): Promise<EpisodeDetail | undefined> {
-  if (!SAFE_ID.test(showId) || !SAFE_ID.test(episodeId)) return undefined;
+  if (!SAFE_ID.test(showId) || !SAFE_ID.test(episodeId) || ['cast', 'show'].includes(episodeId)) return undefined;
   const dir = join(STORIES, showId);
   const file = join(dir, `${episodeId}.yaml`);
   if (!existsSync(join(dir, 'cast.yaml')) || !existsSync(file)) return undefined;
