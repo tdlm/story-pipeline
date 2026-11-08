@@ -57,6 +57,8 @@ export type Scene = {
   musicVolume: number;
   cast: Cast;
   shots: Shot[];
+  /** The scene's YAML file. */
+  file: string;
   /** Where `pnpm keep` stores this scene's approved images: <scene folder>/kept/<scene file name>/. */
   keptDir: string;
 };
@@ -233,6 +235,7 @@ export async function loadScene(scenePath: string): Promise<Scene> {
     title: input.title,
     slug: slugify(input.title),
     keptDir,
+    file: resolve(scenePath),
     aspect: input.aspect,
     ...ASPECTS[input.aspect],
     captions: input.captions,

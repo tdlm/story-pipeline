@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdir, readFile } from 'node:fs/promises';
+import { copyFile, link, mkdir, readFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 
 export const sha = (value: unknown): string =>
@@ -89,4 +89,13 @@ export const log = (message: string): void => console.log(message);
  */
 export function cachedPath(dir: string, stored: string): string {
   return join(dir, basename(stored));
+}
+
+/** Hard-links a file to save space, or copies it where links aren't possible. Never write to either in place afterwards. */
+export async function linkOrCopy(from: string, to: string): Promise<void> {
+  try {
+    await link(from, to);
+  } catch {
+    await copyFile(from, to);
+  }
 }

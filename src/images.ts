@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { copyFile, readFile, unlink, writeFile } from 'node:fs/promises';
+import { copyFile, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { basename, extname, join } from 'node:path';
 import { z } from 'zod';
 import { env } from './env.ts';
@@ -15,7 +15,8 @@ import {
   type Part,
 } from './gemini.ts';
 import { refsForShot, type Ref, type Scene, type Shot } from './load.ts';
-import { cachedPath, ensureDir, fileSha, log, sha } from './util.ts';
+import { cachedPath, ensureDir, fileSha, linkOrCopy, log, sha } from './util.ts';
+import { saveVersion } from './versions.ts';
 
 const CACHE = join(env.cacheDir, 'images');
 
@@ -278,7 +279,7 @@ export async function shotImage(scene: Scene, shot: Shot, options: ImageOptions)
   }
 
   const plate = await plateImage(scene, shot);
-  type Attempt = Image & { attempt: number; issues: string[] };
+  type Attempt = Image & { attempt: number; issues: string[]; version: string };
   let last: Attempt | undefined;
   let best: Attempt | undefined;
   let generated = 0;
@@ -303,7 +304,10 @@ export async function shotImage(scene: Scene, shot: Shot, options: ImageOptions)
       throw error;
     }
     const verdict = options.check ? await check(image, refs, prompt, shot.avoid) : { ok: true, issues: [] };
-    last = { ...image, attempt, issues: verdict.ok ? [] : verdict.issues };
+    const issues = verdict.ok ? [] : verdict.issues;
+    // Every attempt was paid for, so each is kept as a version, not only the best one.
+    const version = await saveVersion(scene, shot, image, { reason: 'attempt', attempt, issues });
+    last = { ...image, attempt, issues, version };
     // Keep the attempt with the fewest problems; edits can drift, so the last isn't always the best.
     if (best === undefined || last.issues.length <= best.issues.length) best = last;
     if (verdict.ok) break;
@@ -312,13 +316,14 @@ export async function shotImage(scene: Scene, shot: Shot, options: ImageOptions)
 
   if (best === undefined) throw new Error(`Shot ${shot.id}: Gemini returned no image after ${env.imageMaxAttempts} attempts.`);
 
-  const entry = await saveEntry(key, best, best.attempt, best.issues);
+  const entry = await saveEntry(key, best, best.attempt, best.issues, best.version);
   return { ...entry, generated, cached: false };
 }
 
-async function saveEntry(key: string, image: Image, attempt: number, issues: string[]): Promise<CacheEntry> {
+/** Makes an image the shot's cached image. Links to its saved version, so it takes no extra space. */
+async function saveEntry(key: string, image: Image, attempt: number, issues: string[], version: string): Promise<CacheEntry> {
   const file = join(CACHE, `${key}-${Date.now()}${EXT_BY_MIME[image.mime] ?? '.png'}`);
-  await writeFile(file, image.data);
+  await linkOrCopy(version, file);
   const entry: CacheEntry = { file, attempt, issues };
   await writeEntry(key, entry);
   return entry;
@@ -334,9 +339,14 @@ export async function fixShot(scene: Scene, shot: Shot, instruction: string): Pr
     // A kept image is edited in place and stays kept.
     const image: Image = { data: await readFile(shot.keptFile), mime: MIME_BY_EXT[extname(shot.keptFile).toLowerCase()] ?? 'image/png' };
     const fixed = await generate(buildPrompt(scene, shot), refsForShot(scene, shot), scene.aspect, { kind: 'edit', image, fixes: [instruction] });
+    await saveVersion(scene, shot, { path: shot.keptFile }, { reason: 'kept-before-fix' });
+    await saveVersion(scene, shot, fixed, { reason: 'fix', instruction });
     const file = shot.keptFile.replace(/\.[a-z]+$/i, EXT_BY_MIME[fixed.mime] ?? '.png');
-    await writeFile(file, fixed.data);
+    // Write beside it and rename, so the kept file is replaced, never written in place.
+    const temp = `${file}.tmp`;
+    await writeFile(temp, fixed.data);
     if (file !== shot.keptFile) await unlink(shot.keptFile);
+    await rename(temp, file);
     return file;
   }
   const key = await imageKey(scene, shot, false);
@@ -349,7 +359,8 @@ export async function fixShot(scene: Scene, shot: Shot, instruction: string): Pr
     mime: MIME_BY_EXT[extname(current.file).toLowerCase()] ?? 'image/png',
   };
   const fixed = await generate(buildPrompt(scene, shot), refsForShot(scene, shot), scene.aspect, { kind: 'edit', image, fixes: [instruction] });
-  const entry = await saveEntry(key, fixed, current.attempt + 1, []);
+  const version = await saveVersion(scene, shot, fixed, { reason: 'fix', instruction });
+  const entry = await saveEntry(key, fixed, current.attempt + 1, [], version);
   return entry.file;
 }
 
@@ -374,6 +385,13 @@ export async function keepShot(scene: Scene, shot: Shot): Promise<KeepResult> {
   await ensureDir(scene.keptDir);
   await copyFile(file, join(scene.keptDir, `${shot.id}${extname(file)}`));
   return 'kept';
+}
+
+/** Unlocks a kept shot after it was redrawn. The kept image is saved as a version first. */
+export async function unkeepShot(scene: Scene, shot: Shot): Promise<void> {
+  if (shot.keptFile === undefined) return;
+  await saveVersion(scene, shot, { path: shot.keptFile }, { reason: 'kept-before-redraw' });
+  await unlink(shot.keptFile);
 }
 
 /** True when this shot would need a new image (used for the cost guard). */

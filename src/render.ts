@@ -1,4 +1,4 @@
-import { copyFile, unlink, writeFile } from 'node:fs/promises';
+import { copyFile, writeFile } from 'node:fs/promises';
 import { extname, join, relative } from 'node:path';
 import { ROOT, env, requireKey } from './env.ts';
 import { buildCaptions } from './captions.ts';
@@ -6,7 +6,7 @@ import { resolveCartesiaVoice } from './cartesia.ts';
 import { remainingCredits, soundEffect, voiceProblems } from './elevenlabs.ts';
 import { elevenLabsCost, parseVoice, speak, type Speech } from './speech.ts';
 import { ffmpegInfo, probeDuration, REQUIRED_FILTERS } from './ffmpeg.ts';
-import { needsImage, shotImage, type ShotImage } from './images.ts';
+import { needsImage, shotImage, unkeepShot, type ShotImage } from './images.ts';
 import { loadScene, type Scene } from './load.ts';
 import { buildTimeline, type TimedShot } from './timeline.ts';
 import { ensureDir, log, mapPool } from './util.ts';
@@ -96,8 +96,8 @@ export async function render(scenePath: string, options: RenderOptions): Promise
     const image = await shotImage(scene, shot, { mock: options.mock, check: options.check, regen });
     if (regen && shot.keptFile !== undefined && !options.mock) {
       // A redrawn shot is no longer the approved one; keep it again once you like it.
-      await unlink(shot.keptFile);
-      log(`  ${shot.id}: unkept (redrawn)`);
+      await unkeepShot(scene, shot);
+      log(`  ${shot.id}: unkept (redrawn; the kept image is saved as a version)`);
     }
     const status = image.kept === true ? 'kept' : image.cached ? 'cached' : `generated (attempt ${image.attempt})`;
     log(`  ${shot.id}: ${status}${image.issues.length > 0 ? `, still has issues: ${image.issues.join('; ')}` : ''}`);
