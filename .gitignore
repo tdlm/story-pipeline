@@ -1,0 +1,18 @@
+node_modules/
+.DS_Store
+.bak-ep03/
+.cache/
+out/
+.env
+.git-backup-*/
+
+# Media stays on disk, out of git
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.gif
+*.mp3
+*.wav
+*.m4a
+*.mp4
