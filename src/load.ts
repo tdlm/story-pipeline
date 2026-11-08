@@ -14,6 +14,7 @@ import {
   type VoiceFx,
   type VoiceSettings,
 } from './schema.ts';
+import { ROOT } from './env.ts';
 import { slugify } from './util.ts';
 
 export type Ref = { label: string; path: string };
@@ -59,6 +60,8 @@ export type Scene = {
   shots: Shot[];
   /** The scene's YAML file. */
   file: string;
+  /** Stable name from the scene's path (stories/hatch/ep01.yaml → stories-hatch-ep01). Unique across shows. */
+  id: string;
   /** Where `pnpm keep` stores this scene's approved images: <scene folder>/kept/<scene file name>/. */
   keptDir: string;
 };
@@ -236,6 +239,7 @@ export async function loadScene(scenePath: string): Promise<Scene> {
     slug: slugify(input.title),
     keptDir,
     file: resolve(scenePath),
+    id: slugify(relative(ROOT, resolve(scenePath)).replace(/\.ya?ml$/i, '')),
     aspect: input.aspect,
     ...ASPECTS[input.aspect],
     captions: input.captions,

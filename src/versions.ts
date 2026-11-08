@@ -1,10 +1,10 @@
 import { existsSync } from 'node:fs';
 import { appendFile, readFile, writeFile } from 'node:fs/promises';
-import { basename, extname, join, relative } from 'node:path';
-import { ROOT, env } from './env.ts';
+import { basename, extname, join } from 'node:path';
+import { env } from './env.ts';
 import { EXT_BY_MIME } from './gemini.ts';
 import type { Scene, Shot } from './load.ts';
-import { ensureDir, linkOrCopy, slugify } from './util.ts';
+import { ensureDir, linkOrCopy } from './util.ts';
 
 /** Why a version was saved. */
 export type VersionReason = 'attempt' | 'fix' | 'kept-before-fix' | 'kept-before-redraw';
@@ -26,8 +26,7 @@ type Source = { data: Buffer; mime: string } | { path: string };
 
 /** One folder per shot, named after the scene's path so shows with the same episode names never share one. */
 export function versionsDir(scene: Scene, shot: Shot): string {
-  const sceneId = slugify(relative(ROOT, scene.file).replace(/\.ya?ml$/i, ''));
-  return join(env.studioDir, 'versions', sceneId, shot.id);
+  return join(env.studioDir, 'versions', scene.id, shot.id);
 }
 
 /**
