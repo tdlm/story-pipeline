@@ -1,0 +1,220 @@
+# HATCH, Part 1: The Alert. (~70s with the end card)
+# Hook: a quiet Saturday night, then every screen in the house screams. Turn: the sky over the city
+# goes white. Cliffhanger: Milo is down the hatch, Zoey is still inside. Vote.
+#
+# Seeds from the game's story bible:
+# - He read civil defence "drill" scripts years ago. The alert uses one, in a voice he half knows.
+#   (It's his own voice: the `radio` character. He won't place it until the third bunker.)
+# - The neighbours called him crazy. The "dust storm" is the ash.
+# - The pets: "Wonder if the cat got out." / "Used to walk the dog along here."
+#
+# Plates keep the house and yard fixed: refs/living-room.jpg (TV ~x 0.27, window ~0.57, couch ~0.8)
+# and refs/yard.jpg (street and horizon ~0.3, hatch ~0.69, front window ~0.78).
+
+title: The Alert
+cast: cast.yaml
+aspect: "9:16"
+header: "HATCH · PART 1"
+
+shots:
+  - id: couch
+    plate: refs/living-room.jpg
+    plate_focus: [0.8, 0.5]
+    location: home
+    cast: [you, dog, cat]
+    image: >
+      The survivor slumped on his couch on a quiet evening, blue TV glow on his face. The dog
+      is asleep across his feet; the cat is curled on the armrest.
+    move: push-in
+    sfx: quiet TV chatter in a living room, a dog snoring softly
+    lines:
+      - narrator: "Saturday night. Your dog, Milo, and your cat, Zoey, are both sound *asleep*."
+
+  - id: news
+    plate: refs/living-room.jpg
+    plate_focus: [0.27, 0.5]
+    plate_zoom: 1.5
+    location: home
+    props: [tv]
+    image: >
+      Close on the TV: a news anchor beside a map with a big grey smudge spreading over
+      three cities.
+    move: push-in
+    sfx: a news anchor talking, muffled
+    lines:
+      - narrator: "Your show is interrupted by breaking news."
+      - narrator: "They call it a *dust storm*. Multiple cities. Same grey cloud."
+
+  - id: wind
+    plate: refs/living-room.jpg
+    plate_focus: [0.78, 0.5]
+    plate_zoom: 1.1
+    location: home
+    cast: [you]
+    image: >
+      The survivor leaning forward on the couch, frowning at the TV, the remote hanging
+      from his hand.
+    move: push-in
+    lines:
+      - you: "Dust storms don't move *against* the wind."
+
+  - id: alert
+    location: home
+    props: [tv, phone]
+    image: >
+      Close on the TV and the phone on the coffee table: both screens suddenly blaze red with
+      a big warning triangle, lighting the room red.
+    move: push-in
+    sfx: harsh emergency alert tone blaring from a TV and a phone at the same time
+    sfx_volume: 0.4
+    lines:
+      - narrator: "Then your TV and your phone *scream* at the same time."
+
+  - id: script
+    location: home
+    props: [phone]
+    image: >
+      Extreme close-up of the phone's red screen with the warning triangle, glowing, a little
+      shaky, held in his hand.
+    move: push-in
+    lines:
+      - radio: "This is not a drill. Get inside, stay inside, and stay tuned."
+
+  - id: drill
+    location: home
+    cast: [you, dog]
+    image: >
+      Close-up of the survivor's face lit red by the screens, eyes wide, sitting bolt upright.
+      The dog's head is up, ears back.
+    move: push-in
+    lines:
+      - you: "I know those words. I've *read* those words."
+
+  - id: neighbours
+    plate: refs/living-room.jpg
+    plate_focus: [0.57, 0.45]
+    location: home
+    cast: [you]
+    image: >
+      The survivor at the front window, pulling the curtain aside. Across the street, his
+      neighbours stand on their lawns in the porch light, staring at their glowing red
+      phones, worried and confused.
+    move: pan-right
+    sfx: distant sirens starting up across the neighbourhood
+    lines:
+      - narrator: "Twenty years, your neighbours called you *crazy*."
+      - narrator: "Tonight, they're staring in *disbelief* at their phones."
+
+  - id: flash
+    plate: refs/yard.jpg
+    plate_focus: [0.3, 0.4]
+    location: yard
+    image: >
+      Wide view over the rooftops of the street toward the distant city: a huge white flash
+      fills the horizon, the houses black silhouettes against it. No people.
+    move: pull-out
+    lines:
+      - narrator: "Suddenly, the sky over the city burns bright like the *sun*."
+
+  - id: seconds
+    plate: refs/living-room.jpg
+    plate_focus: [0.57, 0.55]
+    plate_zoom: 1.1
+    location: home
+    cast: [you]
+    image: >
+      The survivor crouched on the floor below the front window, back to the wall, arms
+      over his head. Hard white light blasts through the glass above him, throwing sharp
+      shadows across the room.
+    move: push-in
+    sfx: tense near-silence, then a deep distant boom rolling in, windows rattling hard
+    sfx_volume: 0.9
+    lines:
+      - narrator: "You hit the floor, shielding yourself. You *count*, just like you practised."
+      - narrator: "Forty seconds. Then the *shockwave*."
+
+  - id: grab
+    plate: refs/living-room.jpg
+    plate_focus: [0.72, 0.6]
+    location: home
+    cast: [you, dog, cat]
+    image: >
+      The survivor, in his beanie and slate-blue coat, scooping the dog up under one arm and
+      lunging for the cat, which bolts under the couch. A lamp topples. Everything lit red.
+    move: push-in
+    sfx: a dog barking, a lamp crashing over, a cat hissing
+    lines:
+      - narrator: "You grab Milo. Zoey *bolts*."
+
+  - id: run
+    plate: refs/yard.jpg
+    plate_focus: [0.55, 0.6]
+    location: yard
+    cast: [you, dog]
+    image: >
+      The survivor running across his dark front yard with the dog under his arm. Across the
+      street, a neighbour turns to stare at him.
+    move: pan-left
+    sfx: running footsteps on grass, sirens, wind picking up
+    lines:
+      - narrator: "Forty steps to the hatch. You've practised it a *hundred* times."
+
+  - id: hatch
+    plate: refs/yard.jpg
+    plate_focus: [0.69, 0.65]
+    location: yard
+    cast: [you, dog]
+    props: [hatch]
+    image: >
+      The survivor, in his beanie and slate-blue coat, climbing down the steel ladder into
+      the open square hatch in the lawn, the dog tucked under one arm, only his head and
+      shoulders still above the grass. The lid stands open beside him. Wind whips the trees;
+      the sky over the rooftops glows a dull orange. No flash.
+    move: push-in
+    sfx: a heavy metal hatch clanging open, boots on a metal ladder, a dog whimpering
+    lines:
+      - narrator: "You carry Milo down the *ladder*."
+
+  - id: grey
+    plate: refs/yard.jpg
+    plate_focus: [0.3, 0.4]
+    location: yard
+    image: >
+      Low over the rooftops: a rolling wall of grey cloud swallowing the white horizon, the
+      first grey flakes drifting down through the porch light. No people.
+    move: pull-out
+    sfx: a low roaring wind, getting closer
+    lines:
+      - narrator: "The wind's blowing *away* from the city."
+      - narrator: "The grey is coming anyway."
+
+  - id: window
+    plate: refs/yard.jpg
+    plate_focus: [0.78, 0.35]
+    plate_zoom: 1.6
+    location: yard
+    cast: [cat]
+    image: >
+      The house's front window seen from the yard: the cat's face pressed against the glass
+      inside, eyes huge, one paw on the pane, lit red by the TV. Grey flakes drift past.
+    move: push-in
+    sfx: wind gusting, a muffled cat meowing behind glass
+    lines:
+      - narrator: "And Zoey is still *inside*. Pawing at the glass."
+
+  - id: vote
+    plate: refs/yard.jpg
+    plate_focus: [0.72, 0.55]
+    location: yard
+    cast: [you, cat]
+    props: [hatch]
+    image: >
+      The survivor, in his beanie and slate-blue coat (no hazmat suit), half down the open
+      hatch facing the viewer, head and body turned the same way, one hand on the lid,
+      looking worried. Behind him is the house, where the cat is a small shape in the red-lit window. The grey
+      cloud rolls over the rooftops behind it.
+    move: push-in
+    hold: 4
+    lines:
+      - narrator: "Go back for Zoey? Or seal the hatch?"
+      - narrator: "Comment *one* or *two*."
