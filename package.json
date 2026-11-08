@@ -13,7 +13,8 @@
     "keep": "node --disable-warning=ExperimentalWarning src/cli.ts keep",
     "voices": "node --disable-warning=ExperimentalWarning src/cli.ts voices",
     "preflight": "node --disable-warning=ExperimentalWarning src/cli.ts preflight",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --disable-warning=ExperimentalWarning test/*.test.ts"
   },
   "dependencies": {
     "yaml": "^2.9.1",
