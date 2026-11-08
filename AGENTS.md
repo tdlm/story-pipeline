@@ -10,7 +10,7 @@ Commits follow [Conventional Commits 1.0](https://www.conventionalcommits.org/en
 
 - **type**: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`, `build`, `ci`, `style`, `revert`
 - **scope** (optional): the one area the commit touches
-  - Engine: `env`, `util`, `ffmpeg`, `schema`, `load`, `gemini`, `images`, `speech`, `timeline`, `captions`, `video`, `render`, `cli`
+  - Engine: `env`, `util`, `ffmpeg`, `schema`, `load`, `gemini`, `images`, `speech`, `timeline`, `captions`, `video`, `render`, `cli`, `yaml`
   - Content: `stories` (shared or sample stories), or the show name, such as `hatch`
   - App: `studio`, or `studio-server` / `studio-web` when the change is limited to one side
 - **description**: imperative mood, lowercase first word, no trailing period
