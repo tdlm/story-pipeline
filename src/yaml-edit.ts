@@ -1,4 +1,4 @@
-import { Document, isAlias, isCollection, isMap, isScalar, isSeq, parseDocument, type Node, type Scalar } from 'yaml';
+import { Document, isAlias, isCollection, isMap, isScalar, isSeq, parseDocument, type Node, type Scalar, type YAMLMap } from 'yaml';
 
 export type YamlPath = (string | number)[];
 export type YamlEdit = { path: YamlPath; value: unknown };
@@ -13,12 +13,31 @@ function lineStart(source: string, offset: number): number {
 /**
  * Sets values in a YAML source by rewriting only the edited entries.
  * Everything else (comments, anchors, folded prompts, flow lists, blank lines) stays byte for byte.
- * Each path must end at a key of a mapping that already exists.
+ * Each path must end at a key of a mapping that already exists; a missing key is added at the end of it.
  */
 export function editYaml(source: string, edits: YamlEdit[]): string {
   let text = source;
   for (const edit of edits) text = applyEdit(text, edit);
   return text;
+}
+
+/** Adds a key at the end of an existing block mapping, at the same indent as its other keys. */
+function addKey(source: string, parent: YAMLMap, key: string, value: unknown, path: YamlPath): string {
+  const first = parent.items[0]?.key as Node | undefined;
+  const last = parent.items.at(-1);
+  const lastEnd = (last?.value as Node | null)?.range?.[1] ?? (last?.key as Node | undefined)?.range?.[1];
+  if (parent.flow === true || first?.range == null || lastEnd === undefined) {
+    throw new Error(`editYaml: can't add ${JSON.stringify(path)} to this mapping`);
+  }
+  const indent = first.range[0] - lineStart(source, first.range[0]);
+  const rendered = new Document({ [key]: value })
+    .toString({ lineWidth: Math.max(40, LINE_WIDTH - indent), flowCollectionPadding: false })
+    .replace(/\n$/, '')
+    .split('\n')
+    .map((line) => (line === '' ? line : ' '.repeat(indent) + line))
+    .join('\n');
+  const end = source[lastEnd - 1] === '\n' ? lastEnd - 1 : lastEnd;
+  return `${source.slice(0, end)}\n${rendered}${source.slice(end)}`;
 }
 
 function applyEdit(source: string, { path, value }: YamlEdit): string {
@@ -30,7 +49,7 @@ function applyEdit(source: string, { path, value }: YamlEdit): string {
   const parent = path.length === 1 ? doc.contents : doc.getIn(path.slice(0, -1), true);
   if (!isMap(parent)) throw new Error(`editYaml: no mapping at ${JSON.stringify(path.slice(0, -1))}`);
   const pair = parent.items.find((item) => isScalar(item.key) && item.key.value === key);
-  if (pair === undefined) throw new Error(`editYaml: no key ${JSON.stringify(path)}`);
+  if (pair === undefined) return addKey(source, parent, key, value, path);
 
   const keyNode = pair.key as Scalar;
   const oldValue = pair.value as Node | null;

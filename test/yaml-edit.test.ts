@@ -75,3 +75,21 @@ for (const file of files) {
     }
   });
 }
+
+test('a missing key is added at the end of its mapping, at the same indent', () => {
+  const source = 'title: T\nshots:\n  - id: a\n    image: >\n      A door.\n  - id: b\n    image: B.\n';
+  const edited = editYaml(source, [{ path: ['shots', 0, 'lines'], value: [{ narrator: 'Knock.' }] }]);
+  assert.equal(edited, 'title: T\nshots:\n  - id: a\n    image: >\n      A door.\n    lines:\n      - narrator: Knock.\n  - id: b\n    image: B.\n');
+  assert.deepEqual(parse(edited).shots[0].lines, [{ narrator: 'Knock.' }]);
+});
+
+test('editing lines on a real episode keeps every other shot as it was', () => {
+  const file = files.find((f) => f.endsWith('ep11.yaml')) ?? files[0]!;
+  const source = readFileSync(file, 'utf8');
+  const data = parse(source) as { shots: { lines?: unknown[] }[] };
+  const lines = [{ narrator: 'A new first line.' }, { narrator: 'And a "quoted" second, with a colon: here.' }];
+  const edited = editYaml(source, [{ path: ['shots', 1, 'lines'], value: lines }]);
+  const after = parse(edited) as typeof data;
+  assert.deepEqual(after.shots[1]?.lines, lines);
+  assert.deepEqual({ ...after, shots: after.shots.filter((_, i) => i !== 1) }, { ...data, shots: data.shots.filter((_, i) => i !== 1) });
+});
