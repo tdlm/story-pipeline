@@ -1,0 +1,228 @@
+# HATCH, Part 2: Day One.
+# Written for the "go back for Zoey" result of Part 1's vote (11 to 2 at the first count).
+# Opens on the vote: back up into the falling grey, Zoey under the couch, a figure walking toward
+# him through the ash (an ash-walker, never confirmed). Sealed. Then the first night: the 6:14
+# broadcast, three of them counted, the crank. Cliffhanger: a knock.
+#
+# The figure stays ambiguous: no face, stiff, walking (never gliding). If it reads as a monster,
+# the knock vote goes lopsided. The cough in `crank` is left open: dust, or the grey? Don't answer it.
+#
+# Shots by the ladder and the vent pipe are edited into a window of the basement image (`plate`),
+# so the room's layout can't move. In refs/basement.jpg the ladder is at about x 0.57 and the
+# pipe at about x 0.66. Yard and living-room shots use the Part 1 plates: refs/yard.jpg (street
+# and horizon ~0.3, hatch ~0.69, front window ~0.78) and refs/living-room.jpg (TV ~0.27,
+# window ~0.57, couch ~0.8). Wide shots and face close-ups are drawn freely.
+
+title: Day One
+cast: cast.yaml
+aspect: "9:16"
+header: "HATCH · PART 2"
+
+shots:
+  - id: back-up
+    plate: refs/yard.jpg
+    plate_focus: [0.69, 0.6]
+    location: yard
+    cast: [you]
+    props: [hatch]
+    image: >
+      The survivor, in his beanie and slate-blue coat, climbing up out of the open square
+      hatch in the lawn, one boot still on the ladder, looking toward the house. The sky over
+      the rooftops glows a dull orange and the first grey flakes are falling around him.
+      The house's front window is dark, with only a faint red glow behind the curtains; no TV
+      or screen can be seen through it.
+    move: push-in
+    sfx: boots on a metal ladder, a low roaring wind
+    lines:
+      - narrator: "You voted. You went back for *Zoey*."
+      - narrator: "The grey is already *falling*."
+
+  - id: couch
+    plate: refs/living-room.jpg
+    plate_focus: [0.8, 0.7]
+    location: home
+    cast: [cat]
+    image: >
+      Low, close to the floor of the dark living room, lit red by the TV: the gap under the
+      couch. In the shadow underneath, only the cat's big green eyes and the white blaze down
+      his face are visible. The toppled lamp lies on the rug.
+    move: push-in
+    sfx: a TV emergency tone, muffled and far off, a cat growling low
+    lines:
+      - narrator: "Zoey's under the couch. Of course he *is*."
+
+  - id: scratch
+    location: home
+    cast: [you, cat]
+    image: >
+      The survivor kneeling by the couch, clutching the cat to his chest with both arms. The
+      cat is squirming to get free: legs splayed, back paws kicking against his forearm, body
+      twisting away from him, ears flat, eyes wide. Not attacking him, just desperate to escape
+      being held. Three thin red scratch lines on the survivor's forearm. He winces, eyes
+      squeezed shut, but keeps his grip. The TV shows the red emergency alert screen with a
+      white warning triangle, and its red glow lights the whole room. Played for comedy.
+    move: push-in
+    sfx: a cat yowling and hissing, a man yelping
+    lines:
+      - narrator: "You grab him. He makes you *bleed* for it."
+
+  - id: figure
+    plate: refs/yard.jpg
+    plate_focus: [0.45, 0.45]
+    location: yard
+    cast: [you, cat]
+    image: >
+      The survivor running across his front yard toward the hatch, the cat clutched to his
+      chest. Far down the street behind him, small in the distance, an ordinary adult in
+      everyday clothes (a coat and trousers) walks toward him through the falling grey. Normal
+      human height and build. Head down, so no face can be seen, and dusted grey from head to
+      toe. Walking stiffly, arms hanging at their sides. Not a creature, not an alien, no
+      glowing eyes, no strange limbs: just a person who seems slightly wrong. The neighbours'
+      porch lights glow through the ash. The survivor's front window is dark; no TV or screen
+      can be seen.
+    move: pan-left
+    sfx: running footsteps on grass, wind, ash hissing down
+    lines:
+      - narrator: "Someone's out there in the *grey*."
+      - you: "Hey! You need to get *inside*!"
+      - narrator: "They don't answer. They just keep *walking* toward you."
+
+  - id: sealed
+    location: basement
+    cast: [you]
+    props: [hatch]
+    plate: refs/basement.jpg
+    plate_focus: [0.57, 0.4]
+    image: >
+      The survivor is near the top of the ladder, both arms raised over his head, turning the
+      locking wheel on the underside of the hatch lid. The lid is fully shut, flush with its
+      frame. No light at its edges; the only light is the amber bulbs below.
+    move: push-in
+    sfx: heavy steel hatch slamming shut, then a bolt sliding home
+    sfx_volume: 0.9
+    lines:
+      - narrator: "The hatch is sealed. The air is still."
+
+  - id: home
+    location: basement
+    cast: [you]
+    image: >
+      The whole shelter in warm amber light. The survivor stands in the middle of the rug,
+      catching his breath, looking around at what he built.
+    move: pull-out
+    sfx: low warm electrical hum, a light bulb ticking
+    lines:
+      - you: "Twenty years of prepping... and I nearly forgot the *can opener*."
+
+  - id: white-sky
+    location: basement
+    cast: [you]
+    image: >
+      Close-up of the survivor's face looking up at the ceiling, eyes wide. Dust trickles
+      down through the amber light from the beams above him.
+    move: push-in
+    sfx: deep distant rumble, the room trembling
+    lines:
+      - narrator: "All night, the blasts keep *coming*. Further off each time."
+
+  - id: six-fourteen
+    location: basement
+    props: [radio]
+    image: >
+      Close on the wooden radio on its shelf, its amber dial glowing in the dark, a small
+      wind-up alarm clock beside it.
+    move: push-in
+    sfx: radio switching on, crackling static
+    lines:
+      - narrator: "At six fourteen, the radio switches itself *on*."
+
+  - id: lantern
+    location: basement
+    props: [radio]
+    image: >
+      Extreme close-up of the radio's cloth speaker grille, lit amber from the dial, the
+      tuning needle trembling. Faint sound lines coming off the grille.
+    move: push-in
+    lines:
+      - radio: "Six fourteen. This is the Lighthouse station."
+
+  - id: count
+    location: basement
+    cast: [you]
+    image: >
+      The survivor sits alone on the edge of his cot, elbows on knees, one bulb above him.
+      The rest of the shelter is in shadow. Nobody else is there.
+    move: pull-out
+    lines:
+      - radio: "Count your people. Keep the lights low."
+
+  - id: one
+    location: basement
+    cast: [you, dog, cat]
+    image: >
+      The survivor sitting on the edge of his cot in the amber light, shown from the knees up,
+      a tired half-smile, holding up three fingers. A white bandage is wrapped around his
+      forearm. The dog sits at his feet with his chin resting on the survivor's knee, and the
+      cat is perched on his shoulder. Both pets clearly visible.
+    move: push-in
+    lines:
+      - you: "Count my people. ...That's *three*. Counting Milo and Zoey."
+
+  - id: vents
+    location: basement
+    cast: [you]
+    props: [crank]
+    plate: refs/basement.jpg
+    plate_focus: [0.64, 0.45]
+    plate_zoom: 1.15
+    image: >
+      The survivor stands beside the vent pipe, looking up to where it passes through the
+      ceiling to the surface. Near the top of the pipe is a round louvred vent grille. The
+      crank turns a fan housing built into the pipe.
+    move: pan-up
+    lines:
+      - radio: "The air is changing. Listen to the vents."
+
+  - id: crank
+    location: basement
+    cast: [you]
+    props: [crank]
+    plate: refs/basement.jpg
+    plate_focus: [0.62, 0.55]
+    image: >
+      The survivor gripping the crank on the vent pipe with both hands and turning it,
+      leaning into it, determined. Motion lines around the handle.
+    move: push-in
+    sfx: a man coughing hard, then a rusty metal hand crank turning and a fan starting to spin
+    lines:
+      - you: "Better start *cranking*."
+
+  - id: knock
+    location: basement
+    props: [hatch]
+    plate: refs/basement.jpg
+    plate_focus: [0.57, 0.3]
+    plate_zoom: 1.25
+    image: >
+      The closed square hatch at the top of the ladder. Grey ash dust sifts down from its
+      edges through the amber light. No people.
+    move: push-in
+    sfx: three slow metallic raps on a thick steel hatch, echoing
+    sfx_volume: 1
+    lines:
+      - narrator: "Day three. Someone *knocks*."
+      - narrator: "Three slow knocks. Like a *person*."
+
+  - id: vote
+    location: basement
+    cast: [you]
+    props: [monitor]
+    image: >
+      Over the survivor's shoulder at the monitor: the grainy green camera feed shows a thin
+      hooded figure outside the hatch in falling ash, arms wrapped around themself, face
+      hidden. The survivor's hand hovers near the hatch lever.
+    move: push-in
+    hold: 4
+    lines:
+      - narrator: "Open the hatch? Or stay *quiet*?"
+      - narrator: "Comment *one* or *two*."
