@@ -322,13 +322,13 @@ export async function shotImage(scene: Scene, shot: Shot, options: ImageOptions)
 
   if (best === undefined) throw new Error(`Shot ${shot.id}: Gemini returned no image after ${env.imageMaxAttempts} attempts.`);
 
-  const entry = await saveEntry(key, best, best.attempt, best.issues, best.version);
+  const entry = await saveEntry(key, best.mime, best.attempt, best.issues, best.version);
   return { ...entry, generated, cached: false };
 }
 
 /** Makes an image the shot's cached image. Links to its saved version, so it takes no extra space. */
-async function saveEntry(key: string, image: Image, attempt: number, issues: string[], version: string): Promise<CacheEntry> {
-  const file = join(CACHE, `${key}-${Date.now()}${EXT_BY_MIME[image.mime] ?? '.png'}`);
+async function saveEntry(key: string, mime: string, attempt: number, issues: string[], version: string): Promise<CacheEntry> {
+  const file = join(CACHE, `${key}-${Date.now()}${EXT_BY_MIME[mime] ?? '.png'}`);
   await linkOrCopy(version, file);
   const entry: CacheEntry = { file, attempt, issues };
   await writeEntry(key, entry);
@@ -370,7 +370,7 @@ export async function fixShot(scene: Scene, shot: Shot, instruction: string): Pr
     generate(buildPrompt(scene, shot), refsForShot(scene, shot), scene.aspect, { kind: 'edit', image, fixes: [instruction] }),
   );
   const version = await saveVersion(scene, shot, fixed, { reason: 'fix', instruction });
-  const entry = await saveEntry(key, fixed, current.attempt + 1, [], version);
+  const entry = await saveEntry(key, fixed.mime, current.attempt + 1, [], version);
   return entry.file;
 }
 
@@ -395,6 +395,41 @@ export async function keepShot(scene: Scene, shot: Shot): Promise<KeepResult> {
   await ensureDir(scene.keptDir);
   await copyFile(file, join(scene.keptDir, `${shot.id}${extname(file)}`));
   return 'kept';
+}
+
+/**
+ * Makes a saved version the shot's picture again. A kept shot gets it as its kept image (the one it
+ * replaces is saved first); any other shot gets it as its cached image for the current prompt. Free.
+ */
+export async function useVersion(scene: Scene, shot: Shot, versionFile: string): Promise<string> {
+  if (!existsSync(versionFile)) throw new Error('That version no longer exists.');
+  if (shot.keptFile !== undefined) {
+    await saveVersion(scene, shot, { path: shot.keptFile }, { reason: 'kept-before-restore' });
+    const file = shot.keptFile.replace(/\.[a-z]+$/i, extname(versionFile).toLowerCase());
+    const temp = `${file}.tmp`;
+    await copyFile(versionFile, temp);
+    if (file !== shot.keptFile) await unlink(shot.keptFile);
+    await rename(temp, file);
+    return file;
+  }
+  await ensureDir(CACHE);
+  const key = await imageKey(scene, shot, false);
+  const current = await readEntry(key);
+  const entry = await saveEntry(key, MIME_BY_EXT[extname(versionFile).toLowerCase()] ?? 'image/png', current?.attempt ?? 1, [], versionFile);
+  return entry.file;
+}
+
+/**
+ * Unlocks a kept shot by hand. Its kept picture stays its current one (for the current prompt), so it
+ * can be fixed or kept again; it's also saved as a version.
+ */
+export async function releaseKept(scene: Scene, shot: Shot): Promise<void> {
+  if (shot.keptFile === undefined) return;
+  const version = await saveVersion(scene, shot, { path: shot.keptFile }, { reason: 'unkept' });
+  await ensureDir(CACHE);
+  const key = await imageKey(scene, shot, false);
+  await saveEntry(key, MIME_BY_EXT[extname(version).toLowerCase()] ?? 'image/png', 1, [], version);
+  await unlink(shot.keptFile);
 }
 
 /** Unlocks a kept shot after it was redrawn. The kept image is saved as a version first. */

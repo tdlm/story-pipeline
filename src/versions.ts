@@ -7,7 +7,7 @@ import type { Scene, Shot } from './load.ts';
 import { ensureDir, linkOrCopy } from './util.ts';
 
 /** Why a version was saved. */
-export type VersionReason = 'attempt' | 'fix' | 'kept-before-fix' | 'kept-before-redraw';
+export type VersionReason = 'attempt' | 'fix' | 'kept-before-fix' | 'kept-before-redraw' | 'kept-before-restore' | 'unkept';
 
 export type Version = {
   /** Full path of the saved image. */
