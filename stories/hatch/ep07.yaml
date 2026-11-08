@@ -1,0 +1,145 @@
+# HATCH, Part 7: Carol.
+# Written for the "get past her now" result of Part 6's vote (about 13 to 2).
+# Opens on the vote result only (full recaps every 5 or 6 parts; see the writing-style doc).
+# Hank's pegboard: a nail gun and a box of road flares (the game's starting weapon and flares).
+# He crosses the street to his own hatch. Carol nearly recognises him, then turns: the game's
+# walkers notice you up close and come at you. Dana watches on the monitor, Milo barking.
+# Mr. Alvarez is drawn by the noise. Vote: the nail gun (puts her down; Dana is watching) or a
+# flare (walkers won't cross fire; she lives, but the light carries down the street: cinder
+# hounds in Part 8). Carol stays human: grey and vacant, mouth open, no monster features.
+#
+# Plates: street shots use refs/across.jpg (his house facing the camera; the hatch is on the grass
+# to the right of the front walkway, about x 0.70 y 0.62, never on the walkway). The monitor shot
+# uses Part 2's kept vote image (screen about x 0.71 y 0.52).
+
+title: Carol
+cast: cast.yaml
+aspect: "9:16"
+header: "HATCH · PART 7"
+
+shots:
+  - id: result
+    image_file: kept/ep06/carol-hatch.jpg
+    move: push-in
+    lines:
+      - narrator: "Almost all of you said to get past Carol. You're going to need more than a bag of filters for that."
+
+  - id: pegboard
+    cast: [you]
+    props: [nail-gun, road-flare]
+    image: >
+      Inside Hank Henderson's dark, tidy garage, lit by a torch beam. A pegboard wall where every
+      tool hangs inside its own hand-drawn outline: wrenches, a hammer, a saw. In the middle, a
+      chunky yellow-and-black nail gun hangs in its outline, and beside it on a small shelf sits a
+      cardboard box of red road flares with a neat hand-lettered label. The survivor's black-gloved
+      hand, in a mustard hazmat sleeve, reaches in from the edge of frame and lifts the nail gun
+      off its hooks.
+    avoid: [his face, anyone else, a monster]
+    move: push-in
+    sfx: a tool scraping off pegboard hooks, his breathing inside a helmet
+    lines:
+      - narrator: "Hank drew an outline around every tool on his pegboard, so he'd always know where it went back."
+      - narrator: "The nail gun is right where its outline says it should be. So is a box of road flares, labelled, of course."
+      - you: "Thanks again, Hank."
+
+  - id: cross
+    location: across
+    cast: [you, carol]
+    props: [hatch, nail-gun, road-flare]
+    plate: refs/across.jpg
+    plate_focus: [0.62, 0.55]
+    image: >
+      Seen from behind, the survivor in his baggy mustard-yellow hazmat suit and round helmet walks
+      slowly across the ash-grey street toward his own house, the nail gun held low in one gloved
+      hand, a red road flare tucked in his chest pocket, a stuffed canvas bag slung over his shoulder. Ahead of him, on the grass to the right of
+      the front walkway, Carol (hood down, grey curls, long grey coat) kneels at the square steel
+      hatch with her back to him, knocking on it. The walkway is clear. Ash falling.
+    avoid: [his face, open hatch, the hatch on the walkway or sidewalk, a monster, glowing eyes, anyone else]
+    move: push-in
+    sfx: slow footsteps crunching on ash, faint knocking on steel, wind
+    lines:
+      - narrator: "With the filters and Hank's answering machine in a bag over your shoulder, you cross the street slowly, the way you'd walk up to a dog you don't know."
+
+  - id: looks-up
+    location: across
+    cast: [carol]
+    props: [hatch]
+    plate: refs/across.jpg
+    plate_focus: [0.7, 0.6]
+    plate_zoom: 2.4
+    image: >
+      Close on Carol kneeling at the square steel hatch on the grass, one hand still raised from
+      knocking. She has turned her face up toward the camera. Her tired grey eyes are almost in
+      focus, as if she nearly recognises who she is looking at. Sad and human. Ash falling.
+    avoid: [open hatch, a monster, glowing eyes, the survivor]
+    move: push-in
+    sfx: wind, the knocking stops
+    lines:
+      - you: "Carol, it's me. It's just me."
+      - narrator: "She stops knocking. For a second she looks at you like she knows exactly who you are."
+
+  - id: lunge
+    location: across
+    cast: [you, carol]
+    props: [hatch, nail-gun, dosimeter]
+    plate: refs/across.jpg
+    plate_focus: [0.68, 0.58]
+    plate_zoom: 1.7
+    image: >
+      On the grass beside the hatch, Carol lunges up at the survivor, both grey hands grabbing the
+      front of his mustard hazmat suit, her mouth open, eyes blank. He is knocked back a step,
+      arms flung out, the nail gun in one hand, the dosimeter swinging on his wrist. Ash flies up
+      around them. Human, not a monster: no glowing eyes, no claws.
+    avoid: [his face, open hatch, the hatch on the walkway, glowing eyes, claws, blood, anyone else]
+    move: push-in
+    sfx: a sudden scuffle in ash, a sharp gasp inside a helmet
+    sfx_volume: 0.8
+    lines:
+      - narrator: "Then she comes at you."
+      - you: "Carol, *stop*!"
+
+  - id: monitor
+    cast: [dana, dog]
+    props: [monitor, intercom]
+    plate: kept/ep02/vote.jpg
+    image: >
+      The same over-the-shoulder view at the monitor, but it is Dana in the grey sweater at the
+      counter, one hand pressing the intercom's push-to-talk button, leaning toward the screen in
+      horror. On the grainy green camera feed, two figures struggle beside the hatch. At the foot
+      of the ladder in the background, the dog stands up on his hind legs against the rungs,
+      barking up at the closed hatch.
+    avoid: [open hatch, the survivor in the room, a monster]
+    move: push-in
+    sfx: a dog barking hard, muffled scuffling through a speaker
+    lines:
+      - dana-scared: "Get off him! Carol, get *off* him!"
+      - narrator: "Down below, Dana can see everything on the monitor, and there's nothing she can do about it."
+
+  - id: alvarez
+    image_file: kept/ep05/turns.jpg
+    move: push-in
+    sfx: a slow shuffling footstep in ash, a mailbox door creaking
+    lines:
+      - narrator: "Across the street, Mr. Alvarez lets go of his mailbox again. The noise has his attention now."
+
+  - id: pinned
+    location: across
+    cast: [you, carol, alvarez]
+    props: [hatch, nail-gun, road-flare]
+    plate: refs/across.jpg
+    plate_focus: [0.66, 0.6]
+    plate_zoom: 1.4
+    image: >
+      The survivor in his mustard hazmat suit is down on his back on the grass beside the square
+      steel hatch, Carol over him with both grey hands on his helmet. One of his gloved hands holds
+      the nail gun, the other an unlit red road flare. Far behind them, small, Mr. Alvarez in his
+      plaid bathrobe shuffles across the street toward them. Ash falling.
+    avoid: [his face, open hatch, the hatch on the walkway, glowing eyes, claws, blood, a lit flare]
+    move: push-in
+    hold: 4
+    sfx: heavy breathing inside a helmet, slow shuffling footsteps getting closer, wind
+    sfx_volume: 0.6
+    lines:
+      - narrator: "She's got you pinned against your own hatch, and she's a lot stronger than she looks."
+      - narrator: "Use Hank's nail gun on her? Or light the flare and hope the fire scares her off?"
+      - narrator: "Comment *one* or *two*."
