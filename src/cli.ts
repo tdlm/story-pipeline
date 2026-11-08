@@ -1,15 +1,13 @@
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { copyFile, mkdir, readdir, unlink } from 'node:fs/promises';
-import { extname, join, relative, resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { ROOT, env } from './env.ts';
+import { env } from './env.ts';
 import { cartesiaPreview, listCartesiaVoices, resolveCartesiaVoice } from './cartesia.ts';
 import { listVoices, remainingCredits, voiceProblems, voicePreview } from './elevenlabs.ts';
 import { parseVoice, speak } from './speech.ts';
 import { ffmpegInfo, REQUIRED_FILTERS } from './ffmpeg.ts';
 import { listModels } from './gemini.ts';
-import { fixShot } from './images.ts';
+import { fixShot, keepShot } from './images.ts';
 import { loadScene } from './load.ts';
 import { render } from './render.ts';
 import { log, mapPool } from './util.ts';
@@ -224,22 +222,15 @@ async function main(): Promise<void> {
       const [scenePath, ...ids] = positionals;
       if (scenePath === undefined || ids.length === 0) throw new Error('Usage: pnpm keep <scene.yaml> <shot ids...|all>');
       const scene = await loadScene(resolve(scenePath));
-      const shotsDir = join(ROOT, 'out', scene.slug, 'shots');
       const keepable = scene.shots.filter((shot) => shot.imageFile === undefined);
       const wanted = ids.includes('all') ? keepable : keepable.filter((shot) => ids.includes(shot.id));
       const unknown = ids.filter((id) => id !== 'all' && !scene.shots.some((shot) => shot.id === id));
       if (unknown.length > 0) throw new Error(`No shot with id ${unknown.join(', ')}`);
-      await mkdir(scene.keptDir, { recursive: true });
-      const rendered = existsSync(shotsDir) ? await readdir(shotsDir) : [];
+      // Keeps the image the next render would use, so a `pnpm fix` is kept even before the next render.
       for (const shot of wanted) {
-        const name = rendered.find((file) => file.startsWith(`${String(shot.index + 1).padStart(2, '0')}-${shot.id}.`));
-        if (name === undefined) {
-          log(`✗ ${shot.id}: no rendered image. Run: pnpm render ${scenePath} --images-only`);
-          continue;
-        }
-        if (shot.keptFile !== undefined) await unlink(shot.keptFile);
-        await copyFile(join(shotsDir, name), join(scene.keptDir, `${shot.id}${extname(name)}`));
-        log(`✓ kept ${shot.id}`);
+        const result = await keepShot(scene, shot);
+        if (result === 'no image') log(`✗ ${shot.id}: no image yet. Run: pnpm render ${scenePath} --images-only`);
+        else log(`✓ ${shot.id}: ${result}`);
       }
       log(`  Kept images live in ${relative(process.cwd(), scene.keptDir)}. Prompt and cast changes won't redraw them; --regen <id> will.`);
       return;

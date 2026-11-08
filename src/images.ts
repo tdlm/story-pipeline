@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { readFile, unlink, writeFile } from 'node:fs/promises';
+import { copyFile, readFile, unlink, writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { z } from 'zod';
 import { env } from './env.ts';
@@ -201,7 +201,7 @@ async function mockImage(scene: Scene, shot: Shot, file: string): Promise<void> 
 }
 
 /** Cache key: changes when the prompt, any reference image, the model, size or aspect changes. */
-async function imageKey(scene: Scene, shot: Shot, mock: boolean): Promise<string> {
+export async function imageKey(scene: Scene, shot: Shot, mock: boolean): Promise<string> {
   const refs = refsForShot(scene, shot);
   const refHashes = await Promise.all(refs.map(async (ref) => [ref.label, await fileSha(ref.path)]));
   return sha({
@@ -339,6 +339,31 @@ export async function fixShot(scene: Scene, shot: Shot, instruction: string): Pr
   const fixed = await generate(buildPrompt(scene, shot), refsForShot(scene, shot), scene.aspect, { kind: 'edit', image, fixes: [instruction] });
   const entry = await saveEntry(key, fixed, current.attempt + 1, []);
   return entry.file;
+}
+
+/**
+ * The image the next render would use for this shot, without generating anything:
+ * its kept image, else its cached image (including any `pnpm fix` edits). Undefined when it has none yet.
+ */
+export async function currentImage(scene: Scene, shot: Shot): Promise<string | undefined> {
+  if (shot.imageFile !== undefined) return undefined;
+  if (shot.keptFile !== undefined) return shot.keptFile;
+  const entryFile = join(CACHE, `${await imageKey(scene, shot, false)}.json`);
+  if (!existsSync(entryFile)) return undefined;
+  const entry = JSON.parse(await readFile(entryFile, 'utf8')) as CacheEntry;
+  return existsSync(entry.file) ? entry.file : undefined;
+}
+
+export type KeepResult = 'kept' | 'already kept' | 'no image';
+
+/** Locks a shot's current image so prompt and cast changes never redraw it. */
+export async function keepShot(scene: Scene, shot: Shot): Promise<KeepResult> {
+  if (shot.keptFile !== undefined) return 'already kept';
+  const file = await currentImage(scene, shot);
+  if (file === undefined) return 'no image';
+  await ensureDir(scene.keptDir);
+  await copyFile(file, join(scene.keptDir, `${shot.id}${extname(file)}`));
+  return 'kept';
 }
 
 /** True when this shot would need a new image (used for the cost guard). */
