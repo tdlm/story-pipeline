@@ -5,7 +5,7 @@ import type { EpisodeSummary } from '../../server/api-types.ts';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/progress';
-import { useShows } from '@/lib/api';
+import { useDrafts, useShows } from '@/lib/api';
 
 const stageTone = { 'not-started': 'neutral', pictures: 'warning', voices: 'accent', draft: 'accent', final: 'success' } as const;
 const stageLabel = { 'not-started': 'Not started', pictures: 'Pictures', voices: 'Pictures done', draft: 'Draft', final: 'Done' } as const;
@@ -39,17 +39,37 @@ function EpisodeCard({ show, episode }: { show: string; episode: EpisodeSummary 
 
 export default function Home() {
   const { data: shows, error, isPending } = useShows();
+  const { data: drafts } = useDrafts();
   if (isPending) return <p className="text-muted">Loading shows…</p>;
   if (error !== null) return <p className="text-warning">Couldn't reach the studio server. Is it running? ({error.message})</p>;
 
   return (
     <div className="flex flex-col gap-10">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Shows</h1>
+        <Link href="/new-show" className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:border-accent/50">New show</Link>
+      </div>
+      {drafts !== undefined && drafts.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium text-muted">Drafts with Claude</h2>
+          <div className="flex flex-wrap gap-2">
+            {drafts.slice(0, 6).map((d) => (
+              <Link key={d.id} href={`/drafts/${d.id}`} className="rounded-lg border border-border bg-surface px-3 py-2 text-sm hover:border-accent/50">
+                {d.title}{d.pending > 0 && <span className="ml-2 text-warning">{d.pending} to review</span>}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
       {shows.map((show) => {
         const episodes = show.episodes.filter((e) => e.kind === 'episode');
         const assets = show.episodes.filter((e) => e.kind === 'asset');
         return (
           <section key={show.id} className="flex flex-col gap-4">
-            <h2 className="text-xl font-semibold">{show.name}</h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-xl font-semibold">{show.name}</h2>
+              <Link href={`/shows/${show.id}/next`} className="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:opacity-90">Write the next part</Link>
+            </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {[...episodes].reverse().map((episode) => <EpisodeCard key={episode.id} show={show.id} episode={episode} />)}
             </div>
