@@ -31,6 +31,8 @@ export const env = {
   captionFont: read('CAPTION_FONT', 'Impact'),
   /** Where generated images, voices and sounds are cached. Tests point this at a temp folder. */
   cacheDir: resolve(ROOT, read('STORY_CACHE_DIR', '.cache')),
+  /** Where renders are written. Tests point this at a temp folder. */
+  outDir: resolve(ROOT, read('STORY_OUT_DIR', 'out')),
   /** The studio's own records: image versions now, later jobs and the spend ledger. Tests point this at a temp folder. */
   studioDir: resolve(ROOT, read('STORY_STUDIO_DIR', '.studio')),
 };

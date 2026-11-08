@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import { basename, join, relative } from 'node:path';
-import { ROOT } from '../../src/env.ts';
+import { ROOT, env } from '../../src/env.ts';
 import { currentImage } from '../../src/images.ts';
 import { loadScene, type Scene, type Shot } from '../../src/load.ts';
 import type { EpisodeDetail, EpisodeStage, EpisodeSummary, ShotDetail, ShotState, ShowSummary } from './api-types.ts';
@@ -34,7 +34,7 @@ async function shotState(scene: Scene, shot: Shot): Promise<{ state: ShotState; 
 }
 
 function videoFor(scene: Scene): EpisodeDetail['video'] {
-  const dir = join(ROOT, 'out', scene.slug);
+  const dir = join(env.outDir, scene.slug);
   const final = join(dir, `${scene.slug}.mp4`);
   if (existsSync(final)) return { kind: 'final', url: mediaUrl(final) };
   const draft = join(dir, `${scene.slug}-draft.mp4`);

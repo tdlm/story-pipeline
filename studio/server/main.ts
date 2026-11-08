@@ -10,7 +10,7 @@ import { getEpisode, listShows } from './library.ts';
 export const PORT = Number(process.env.STUDIO_API_PORT ?? 4310);
 
 /** The only folders the media route serves from. Never the project root, so .env is never reachable. */
-const MEDIA_ROOTS = [join(ROOT, 'stories'), join(ROOT, 'out'), join(env.cacheDir, 'images'), join(env.studioDir, 'versions')];
+const MEDIA_ROOTS = [join(ROOT, 'stories'), env.outDir, join(env.cacheDir, 'images'), join(env.studioDir, 'versions')];
 
 const TYPES: Record<string, string> = {
   '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp',
