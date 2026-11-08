@@ -1,0 +1,256 @@
+# HATCH, Part 10: Fire.
+# Written for the "go up with the nail gun" result of Part 9's vote (5 to 0). The top comment asked
+# why he didn't check the camera first, so this part opens on the camera.
+# Three cinder hounds at the vent cap (game: animals the ash took; fast, fragile, in packs; fire is the
+# only thing that kills the ash, and they won't cross it). First flare: they back off; one nail
+# turns one to ash. He digs out the vent cap while the flare holds them off. The flare dies, the
+# nail gun jams, a hound pins him and cracks his visor; he lights the last flare and burns it. The
+# last one runs. He lies in the ash, dosimeter in the red, and sees the tower light on the hill.
+# Vote: Dana goes up for him, or talks him back through the speaker while the last hound returns.
+# The pets stay below and are never in danger.
+#
+# Night shots use refs/across.jpg relit (his house facing the camera; the hatch is on the grass
+# to the right of the front walkway, never on the walkway). Monitor shots use Part 2's vote image.
+
+title: Fire
+cast: cast.yaml
+aspect: "9:16"
+header: "HATCH · PART 10"
+
+shots:
+  - id: result
+    image_file: kept/ep09/vote.jpg
+    move: push-in
+    lines:
+      - narrator: "Every one of you said to go up. A lot of you also asked why he hadn't checked the camera first, which is fair."
+
+  - id: feed
+    cast: [hound]
+    props: [monitor, vent-cap, hatch]
+    plate: kept/ep02/vote.jpg
+    plate_focus: [0.71, 0.52]
+    plate_zoom: 2.5
+    image: >
+      Close-up of the monitor at night. On the grainy green camera feed (the same fixed view: a bank
+      of ash on the left, the upright steel frame on the right), three lean grey dogs crowd around
+      the vent cap beside the hatch, digging at it, their eyes catching the light with a dull glint.
+    avoid: [people on the screen, glowing red eyes, a werewolf, a demon, blood]
+    move: push-in
+    sfx: claws scrabbling at metal through a speaker, low growling
+    sfx_volume: 0.6
+    lines:
+      - narrator: "So you check the camera. There are three of them at the vent cap."
+      - narrator: "They used to be somebody's dogs. Now they're grey all the way through, and they're digging like they know exactly what's under there."
+      - dana-scared: "Three. And you've got one nail gun."
+      - you: "And two of Hank's flares."
+
+  - id: suit
+    image_file: kept/ep04/suit.jpg
+    move: push-in
+    lines:
+      - you: "Same knock as always. Two, then three."
+      - dana: "And if it's three slow ones?"
+      - you: "Then it isn't me."
+
+  - id: flare
+    location: across
+    cast: [you, hound]
+    props: [hatch, road-flare, nail-gun]
+    plate: refs/across.jpg
+    plate_focus: [0.68, 0.58]
+    plate_zoom: 1.6
+    relight: true
+    image: >
+      Night. The survivor in his baggy mustard hazmat suit and round dark-visored helmet climbs up
+      out of the open square hatch on the grass, holding a lit red road flare high in one gloved
+      hand, the nail gun in the other. The flare's hard red light spills across the ash. At the
+      edge of the light, three lean grey cinder hounds by the vent cap swing their heads toward him.
+      Everything beyond the red light is black.
+    avoid: [his face, the hatch on the walkway or sidewalk, daylight, blood, anyone else]
+    move: push-in
+    sfx: a road flare igniting with a loud hiss, then crackling
+    lines:
+      - narrator: "You strike the first flare the second your head clears the hatch."
+
+  - id: backing
+    location: across
+    cast: [hound]
+    props: [road-flare]
+    image: >
+      Night, close and low. Three lean grey cinder hounds back away from hard red flare light that
+      floods in from the side of the frame, heads low, lips pulled back, snarling. Thin wisps of ash
+      curl off their fur where the red light touches them. Ash falling, black night behind them.
+    avoid: [people, blood, glowing red eyes, a werewolf, a demon]
+    move: push-in
+    sfx: several low raspy snarls, a flare crackling
+    lines:
+      - narrator: "They hate it. They back away from the light, snarling, but they don't leave."
+
+  - id: nail
+    location: across
+    cast: [you, hound]
+    props: [nail-gun, road-flare]
+    plate: refs/across.jpg
+    plate_focus: [0.66, 0.6]
+    plate_zoom: 1.8
+    relight: true
+    image: >
+      Night, black sky, red flare light. Everything happens on the survivor's own front lawn, on the grass between the picket fence and his porch, never in the street or on the sidewalk. A lean grey cinder hound leaps at the survivor
+      from the side, and in mid-air it bursts apart into a cloud of grey ash and a few embers. The survivor in his mustard
+      hazmat suit and dark-visored helmet has the yellow-and-black nail gun pointed at where it was,
+      the flare in his other hand.
+    avoid: [his face, blood, gore, bones, glowing red eyes, daylight, the street, the sidewalk, faces in windows]
+    move: push-in
+    sfx:
+      - { sound: "one loud sharp pneumatic nail gun shot outdoors at night", at: 0.3, seconds: 1, volume: 0.9 }
+      - { sound: "a soft dry whump like a bag of flour bursting", at: 0.5, seconds: 1, volume: 0.7 }
+    lines:
+      - narrator: "One of them goes for you from the side. It takes a single nail, and it falls apart into ash, like it was barely holding together to begin with."
+
+  - id: dig
+    location: across
+    cast: [you, hound]
+    props: [vent-cap, road-flare, hatch]
+    plate: refs/across.jpg
+    plate_focus: [0.72, 0.62]
+    plate_zoom: 2
+    relight: true
+    image: >
+      Night. The survivor in his mustard hazmat suit kneels on the grass beside the short vent pipe
+      and its mushroom cap near the hatch, scooping packed grey ash out of the mesh with his gloved
+      hands. A lit red flare is stuck upright in the lawn beside him, throwing a circle of red light.
+      Just outside the circle, two lean grey cinder hounds pace in the dark, eyes glinting.
+    avoid: [his face, the hatch on the walkway or sidewalk, daylight, blood, anyone else]
+    move: push-in
+    sfx:
+      - { sound: "gloved hands scraping ash out of a metal mesh, a flare crackling", seconds: 4, volume: 0.6 }
+      - { sound: "air suddenly rushing down a metal pipe with a hollow whoosh", at: 4.5, volume: 0.6 }
+    lines:
+      - narrator: "You stick the flare in the lawn and dig out the cap while the other two pace just outside the light."
+      - dana-intercom: "Air's moving! Get back down here!"
+
+  - id: dark
+    location: across
+    cast: [hound]
+    props: [road-flare]
+    plate: refs/across.jpg
+    plate_focus: [0.66, 0.62]
+    plate_zoom: 2
+    relight: true
+    image: >
+      Night, black sky. On the survivor's front lawn, a road flare stuck in the grass near the hatch
+      has burned down to a sputtering stub, its circle of red light shrinking. At the very edge of
+      the light, two lean grey cinder hounds creep closer on the grass, heads low, their bodies dimly
+      visible, eyes catching a faint dull orange glint like the model sheet. The house is a dark
+      shape behind them.
+    avoid: [people, blood, floating eyes, eyes without bodies, bright red glowing eyes, the street, the sidewalk, a werewolf]
+    move: push-in
+    sfx:
+      - { sound: "a road flare sputtering and fizzling out", seconds: 3, volume: 0.6 }
+      - { sound: "a low raspy growl in the dark", at: 3.5, volume: 0.6 }
+    lines:
+      - narrator: "Then the flare starts to sputter. It's only good for a few minutes, and you spent them all on the vent."
+
+  - id: jam
+    location: across
+    cast: [you, hound]
+    props: [nail-gun]
+    plate: refs/across.jpg
+    plate_focus: [0.66, 0.6]
+    plate_zoom: 1.8
+    relight: true
+    image: >
+      Night, almost dark, a faint red glow from a dying flare on the grass. Everything happens on the survivor's own front lawn, on the grass between the picket fence and his porch, never in the street or on the sidewalk. A lean grey
+      cinder hound launches across the lawn straight at the camera, jaws open, forelegs reaching. In the
+      foreground, the survivor's black-gloved hand in a mustard hazmat sleeve holds the nail gun
+      pointed at it, nothing coming out of it.
+    avoid: [his face, blood, gore, glowing red eyes, a werewolf, a demon, daylight, the street, the sidewalk]
+    move: push-in
+    sfx:
+      - { sound: "a vicious snarl rushing closer", seconds: 2, volume: 0.8 }
+      - { sound: "a power tool trigger clicking twice, dry and empty", at: 1.2, seconds: 1, volume: 1 }
+    lines:
+      - narrator: "The first one comes out of the dark, and Hank's nail gun jams."
+
+  - id: pinned
+    location: across
+    cast: [you, hound]
+    props: [road-flare, dosimeter]
+    image: >
+      Night, from above. The survivor in his mustard hazmat suit lies on his back in the ash and
+      grass, a lean grey cinder hound on his chest, its jaws clamped on the round helmet, a white
+      crack spreading across the dark visor. His free gloved hand is pulling an unlit red flare out
+      of his chest pocket. The nail gun lies out of reach in the grass. Faint red glow from a dying
+      flare at the edge of frame.
+    avoid: [his face, blood, gore, bones, glowing red eyes, a werewolf]
+    move: push-in
+    sfx:
+      - { sound: "snarling and teeth grinding on hard plastic", seconds: 3, volume: 0.8 }
+      - { sound: "glass slowly cracking under pressure", at: 1.5, seconds: 2, volume: 0.9 }
+    lines:
+      - dana-intercom: "Get up! Get *up*!"
+      - narrator: "Its teeth are on your visor, and you can hear it cracking."
+
+  - id: burst
+    location: across
+    cast: [you, hound]
+    props: [road-flare, hatch]
+    plate: refs/across.jpg
+    plate_focus: [0.66, 0.6]
+    plate_zoom: 1.8
+    relight: true
+    image: >
+      Night, black sky, a blaze of red light. Everything happens on the survivor's own front lawn, on the grass between the picket fence and his porch, never in the street or on the sidewalk. The survivor lies on his back on the
+      grass beside the hatch in his mustard hazmat suit and shoves a freshly lit road flare into the
+      side of the cinder hound standing over him. The hound is caught mid-burst: its body breaking
+      apart into a big swirling cloud of grey ash and orange embers where the flare touches it, its
+      head and legs still dog-shaped. In the dark behind, the last hound bolts away.
+    avoid: [his face, blood, gore, bones, a burning animal body, glowing red eyes, daylight, the street, the sidewalk]
+    move: push-in
+    sfx:
+      - { sound: "a road flare igniting with a hiss", seconds: 1, volume: 0.8 }
+      - { sound: "a sudden roar of fire like dry paper catching, then a soft whump", at: 0.6, seconds: 2, volume: 0.9 }
+      - { sound: "a dog yelping, running away into the distance", at: 1.8, seconds: 2, volume: 0.5 }
+    lines:
+      - narrator: "You strike the last flare and shove it into its side. It goes up like dry paper, and the last one runs."
+
+  - id: lying
+    location: across
+    cast: [you]
+    props: [road-flare, dosimeter, hatch]
+    plate: refs/across.jpg
+    plate_focus: [0.6, 0.5]
+    relight: true
+    image: >
+      Night, wide, looking at the survivor's house from across the street. On the lawn, small in the
+      frame, the survivor lies flat on his back in the ash beside the hatch in his mustard hazmat
+      suit, a lit flare burning red in his fist, a crack across his visor. Far behind his house,
+      above the roofline, a thin radio tower stands on a dark hill with a small red light blinking at
+      its top. No animals.
+    avoid: [his face, the hatch on the walkway or sidewalk, daylight, blood, any dogs]
+    move: pull-out
+    sfx:
+      - { sound: "ragged heavy breathing inside a helmet", seconds: 5, volume: 0.6 }
+      - { sound: "a geiger counter clicking fast", seconds: 6, volume: 0.4 }
+    lines:
+      - narrator: "You're lying on your back, and you can't get your breath. There's a crack across your visor, and the needle on your wrist is in the red."
+      - narrator: "Up on the hill past the roofline, there's a red light blinking on top of a radio tower. You've never noticed it before."
+
+  - id: vote
+    cast: [dana, you, hound]
+    props: [monitor, intercom]
+    plate: kept/ep02/vote.jpg
+    image: >
+      The same over-the-shoulder view at the monitor, at night. Dana in her grey sweater stands at
+      the counter with one hand pressed over her mouth, eyes wide. On the grainy green camera feed,
+      the survivor in his suit lies still on the ash beside the hatch, and at the very edge of the
+      screen, a lean grey shape is creeping back toward him.
+    avoid: [open hatch, light at the hatch edges, the survivor in the room, hazmat suit in the room, blood]
+    move: push-in
+    hold: 4
+    sfx: a faint growl through a speaker, a fan running
+    sfx_volume: 0.5
+    lines:
+      - dana-scared: "He's not getting up."
+      - narrator: "Does Dana go up and drag him in herself? Or stay sealed and try to talk him back to the hatch through the speaker?"
+      - narrator: "Comment *one* or *two*."
