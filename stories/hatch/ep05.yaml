@@ -1,0 +1,194 @@
+# HATCH, Part 5: Up Top.
+# Written for the "trust Dana, she bolts it" result of Part 4's vote (about 8 to 6; said as 55%).
+# First trip up in the mustard hazmat suit (visor down: his face is never shown). Dana bolts the
+# hatch and repeats the knock code over the outdoor speaker box. The vent cap is packed with ash and
+# the filter is finished: one spare left (the supply problem behind the Hendersons vote). His own
+# house, first time since the flash: he takes Milo's leash (Part 11 setup). First ash-walker:
+# Mr. Alvarez getting his mail over and over. He hears "Morning" and starts walking.
+# Vote: back to the hatch past Mr. Alvarez, or search the Hendersons' (door wide open) for filters.
+# His return and the knock code (two, then three) are Part 6.
+#
+# Plates: street shots are cut from refs/surface.jpg (hatch ~x 0.67 y 0.8, his house far right,
+# across the street the standing house ~x 0.3 is the Hendersons', burned houses further left).
+# The living room is the Part 1 plate, relit for after the strike.
+
+title: Up Top
+cast: cast.yaml
+aspect: "9:16"
+header: "HATCH · PART 5"
+
+shots:
+  - id: street
+    location: surface
+    cast: [you]
+    plate: refs/surface.jpg
+    plate_focus: [0.45, 0.5]
+    image: >
+      The survivor stands small in the middle of the ash-covered street in his mustard-yellow
+      hazmat suit, helmet on, dark visor down, the only colour anywhere. Ash falls. In a few
+      distant doorways of the burned houses, grey human figures stand perfectly still, too far
+      away to make out.
+    avoid: [his face, monsters, glowing eyes]
+    move: pull-out
+    sfx: wind over an empty street, ash hissing, his breathing inside a helmet
+    lines:
+      - narrator: "Up top, everything is grey. Even the *people*."
+
+  - id: bolted
+    location: surface
+    cast: [you]
+    props: [hatch, intercom]
+    plate: refs/surface.jpg
+    plate_focus: [0.67, 0.78]
+    plate_zoom: 2
+    image: >
+      Close on the closed square steel hatch in the ashy lawn. The survivor's gloved hand in the
+      mustard hazmat suit rests flat on the lid. Beside the hatch, the small weatherproof outdoor
+      speaker box stands on a short post.
+    avoid: [open hatch, his face]
+    move: push-in
+    sfx: heavy steel bolts sliding home, muffled from below
+    sfx_volume: 0.9
+    lines:
+      - narrator: "Fifty-five percent of you trusted Dana. She bolts it behind you."
+      - dana-intercom: "Two, then three. Don't *forget*."
+      - you: "I won't."
+
+  - id: vent-cap
+    location: surface
+    cast: [you]
+    props: [vent-cap, hatch]
+    plate: refs/surface.jpg
+    plate_focus: [0.8, 0.72]
+    plate_zoom: 1.8
+    image: >
+      The survivor in his mustard hazmat suit, visor down, kneels in the ash beside the vent cap
+      sticking out of the lawn near the hatch, scraping packed grey ash out of its mesh with a
+      small trowel. Clumps of ash fall around him.
+    avoid: [his face, open hatch]
+    move: push-in
+    sfx: a trowel scraping metal mesh, wind
+    lines:
+      - dana-intercom: "How bad is it?"
+      - you: "*Bad*. No wonder the crank was fighting me."
+
+  - id: filter
+    location: surface
+    cast: [you]
+    props: [vent-cap]
+    image: >
+      Close-up of the survivor's gloved hands in mustard hazmat sleeves holding up a round vent
+      filter, clogged solid and black-grey with ash, flakes crumbling off it. The opened vent cap
+      is just below, ash falling around.
+    avoid: [his face]
+    move: push-in
+    sfx: wind, ash crumbling
+    lines:
+      - narrator: "The filter is finished. You brought your *last* spare."
+      - you: "Twenty-two years of prepping... and I bought *three* filters."
+
+  - id: sidewalk
+    location: surface
+    cast: [you]
+    plate: refs/surface.jpg
+    plate_focus: [0.4, 0.68]
+    plate_zoom: 1.4
+    image: >
+      The survivor in his mustard hazmat suit, visor down, stands on the ashy sidewalk by his
+      broken fence, looking down at a fire hydrant beside the burned stump of a small tree.
+    avoid: [his face, a dog]
+    move: pan-right
+    sfx: wind, distant creaking
+    lines:
+      - you: "Used to walk Milo along here."
+      - narrator: "Every morning. Same hydrant. Same *sniff*."
+
+  - id: house
+    location: home
+    cast: [you]
+    plate: refs/living-room.jpg
+    plate_focus: [0.45, 0.55]
+    relight: true
+    image: >
+      The same living room after the strike: flat grey daylight, ash drifted across the rug and
+      the couch, the front window blown in with shards on the sill, the curtains hanging in
+      tatters, the TV dark and cracked. Everything grey and still. The survivor stands just
+      inside the front door in his mustard hazmat suit, visor down, lifting a worn brown dog
+      leash off a hook by the door.
+    avoid: [his face, the dog, the cat, a lit lamp, a glowing TV]
+    move: push-in
+    sfx: wind through a broken window, a floorboard creaking
+    lines:
+      - narrator: "Your house. First time back since the *flash*."
+      - narrator: "The couch. The TV. Zoey's spot on the windowsill."
+      - you: "He'll want *this*."
+
+  - id: mailbox
+    location: surface
+    cast: [alvarez]
+    plate: refs/surface.jpg
+    plate_focus: [0.12, 0.45]
+    plate_zoom: 2
+    image: >
+      Across the street, in front of a burned house, Mr. Alvarez stands at his mailbox at the end
+      of his walk, holding its little door open and staring into it with vacant eyes. Grey with
+      ash from head to toe. Still and quiet, like a man getting his mail on any morning.
+    avoid: [a monster, glowing eyes, the survivor]
+    move: push-in
+    sfx: wind, a small metal mailbox door creaking open and shut
+    lines:
+      - narrator: "Mr. Alvarez from number nine is getting his mail."
+      - narrator: "He opens the box. Closes it. Opens it *again*."
+      - you: "...Morning, Mr. Alvarez."
+
+  - id: turns
+    location: surface
+    cast: [alvarez]
+    plate: refs/surface.jpg
+    plate_focus: [0.12, 0.47]
+    plate_zoom: 2.4
+    image: >
+      Closer on Mr. Alvarez. He has let go of the mailbox, its little door hanging open. His head
+      is turned slowly toward the camera, vacant eyes not quite focused, and one slippered foot is
+      stepping off his lawn into the ashy street.
+    avoid: [a monster, glowing eyes, an open mouth snarling]
+    move: push-in
+    sfx: a slow shuffling footstep in ash, the mailbox door creaking
+    lines:
+      - narrator: "He *heard* you."
+      - narrator: "He lets go of the mailbox... and starts *walking*."
+      - you: "Okay. Okay okay okay."
+
+  - id: hendersons
+    location: surface
+    plate: refs/surface.jpg
+    plate_focus: [0.3, 0.45]
+    plate_zoom: 2
+    image: >
+      The Hendersons' house across the street: the front door standing wide open into total
+      darkness, the porch empty, ash drifted on the steps. An attached garage with its door shut
+      beside the house. No people.
+    avoid: [anyone on the porch, anyone in the doorway, a monster]
+    move: push-in
+    sfx: wind, an open door creaking on its hinges
+    lines:
+      - narrator: "The Hendersons' door is wide open. Whoever stood on their porch... *isn't* there anymore."
+      - you: "Hank Henderson changed his furnace filters every month. *Droned on* about it."
+
+  - id: choice
+    location: surface
+    cast: [you, alvarez]
+    plate: refs/surface.jpg
+    plate_focus: [0.4, 0.55]
+    image: >
+      Over the survivor's shoulder, in his mustard hazmat suit with the worn brown leash in one
+      gloved hand. In the street ahead of him, Mr. Alvarez shuffles slowly closer, between the
+      survivor and his far-off hatch. Close by, the Hendersons' open front door gapes dark.
+    avoid: [his face, a monster, glowing eyes, any other figure]
+    move: push-in
+    hold: 4
+    sfx: wind, slow shuffling footsteps in ash getting closer
+    lines:
+      - narrator: "One filter left. Mr. Alvarez between you and *home*."
+      - narrator: "Get back to the hatch, past *him*? Or search the Hendersons'... where the door is wide *open*?"
+      - narrator: "Comment *one* or *two*."
