@@ -28,7 +28,10 @@ export type ShowSummary = {
   episodes: EpisodeSummary[];
 };
 
-export type ShotState = 'kept' | 'to-review' | 'not-drawn' | 'own-picture';
+/** out-of-date: the prompt changed since the picture was drawn, so a render would draw a new one. */
+export type ShotState = 'kept' | 'to-review' | 'out-of-date' | 'not-drawn' | 'own-picture';
+
+export type ShotVersion = { name: string; url: string; reason: string; at: string; instruction?: string };
 
 export type ShotDetail = {
   number: number;
@@ -41,6 +44,10 @@ export type ShotDetail = {
   cast: string[];
   location?: string;
   lines: { speaker: string; text: string }[];
+  /** Saved pictures, oldest first. */
+  versions: ShotVersion[];
+  /** False for a series end card added from cast.yaml: edit that in cast.yaml. */
+  editable: boolean;
 };
 
 export type EpisodeDetail = EpisodeSummary & {
@@ -50,6 +57,12 @@ export type EpisodeDetail = EpisodeSummary & {
   height: number;
   shotList: ShotDetail[];
   video?: { kind: 'final' | 'draft'; url: string };
+  /** The file's revision. Edits send it back and are refused if the file changed since. */
+  rev: string;
+  /** Who can speak: the narrator and the cast's characters. */
+  speakers: string[];
+  /** What one new picture costs, roughly. */
+  imageCostUsd: number;
 };
 
 export type ProposalPreview = {

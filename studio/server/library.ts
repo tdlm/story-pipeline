@@ -4,6 +4,8 @@ import { basename, join } from 'node:path';
 import { env } from '../../src/env.ts';
 import { currentImage } from '../../src/images.ts';
 import { loadScene, type Scene, type Shot } from '../../src/load.ts';
+import { listVersions, type Version } from '../../src/versions.ts';
+import { fileRev, yamlShotCount } from './shots.ts';
 import { mediaUrl } from './media.ts';
 import type { EpisodeDetail, EpisodeStage, EpisodeSummary, ShotDetail, ShotState, ShowSummary } from './api-types.ts';
 
@@ -25,11 +27,14 @@ async function showName(dir: string, id: string): Promise<string> {
   return id.charAt(0).toUpperCase() + id.slice(1);
 }
 
-async function shotState(scene: Scene, shot: Shot): Promise<{ state: ShotState; image?: string }> {
+async function shotState(scene: Scene, shot: Shot, versions: Version[]): Promise<{ state: ShotState; image?: string }> {
   if (shot.imageFile !== undefined) return { state: 'own-picture', image: shot.imageFile };
   if (shot.keptFile !== undefined) return { state: 'kept', image: shot.keptFile };
   const image = await currentImage(scene, shot);
-  return image === undefined ? { state: 'not-drawn' } : { state: 'to-review', image };
+  if (image !== undefined) return { state: 'to-review', image };
+  // No picture for the current prompt, but there are earlier ones: show the latest, marked out of date.
+  const latest = versions.at(-1);
+  return latest === undefined ? { state: 'not-drawn' } : { state: 'out-of-date', image: latest.file };
 }
 
 function videoFor(scene: Scene): EpisodeDetail['video'] {
@@ -55,9 +60,12 @@ function describe(kind: EpisodeSummary['kind'], stage: EpisodeStage, shots: numb
 async function episodeDetail(show: { id: string; name: string }, sceneFile: string): Promise<EpisodeDetail> {
   const id = basename(sceneFile, '.yaml');
   const scene = await loadScene(sceneFile);
+  const source = await readFile(sceneFile, 'utf8');
+  const editableShots = await yamlShotCount(sceneFile);
   const shotList: ShotDetail[] = await Promise.all(
     scene.shots.map(async (shot) => {
-      const { state, image } = await shotState(scene, shot);
+      const versions = await listVersions(scene, shot);
+      const { state, image } = await shotState(scene, shot, versions);
       return {
         number: shot.index + 1,
         id: shot.id,
@@ -69,12 +77,17 @@ async function episodeDetail(show: { id: string; name: string }, sceneFile: stri
         cast: shot.cast,
         location: shot.location,
         lines: shot.lines.map((line) => ({ speaker: line.speaker, text: line.text })),
+        versions: versions.flatMap((v) => {
+          const url = mediaUrl(v.file);
+          return url === undefined ? [] : [{ name: basename(v.file), url, reason: v.reason, at: v.at, instruction: v.instruction }];
+        }),
+        editable: shot.index < editableShots && shot.card === undefined,
       };
     }),
   );
   const done = shotList.filter((shot) => shot.state === 'kept' || shot.state === 'own-picture').length;
-  const toReview = shotList.filter((shot) => shot.state === 'to-review').length;
-  const drawn = shotList.some((shot) => shot.state === 'kept' || shot.state === 'to-review');
+  const toReview = shotList.filter((shot) => shot.state === 'to-review' || shot.state === 'out-of-date').length;
+  const drawn = shotList.some((shot) => shot.state !== 'not-drawn' && shot.state !== 'own-picture');
   const kind = isEpisode(id) ? 'episode' : 'asset';
   const video = videoFor(scene);
   const stage: EpisodeStage =
@@ -101,6 +114,9 @@ async function episodeDetail(show: { id: string; name: string }, sceneFile: stri
     height: scene.height,
     shotList,
     video,
+    rev: fileRev(source),
+    speakers: ['narrator', ...Object.keys(scene.cast.characters)],
+    imageCostUsd: env.imageCostUsd,
   };
 }
 

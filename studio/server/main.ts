@@ -11,6 +11,7 @@ import { accept, addAttachments, createDraft, listDrafts, loadDraft, saveDraft }
 import { runFakeTurn } from './fake-claude.ts';
 import { STORIES, getEpisode, listShows } from './library.ts';
 import { mediaFile } from './media.ts';
+import { Conflict, editShot, fixShotPicture, keepShotPicture, redrawShot, sceneFile, unkeepShotPicture, useShotVersion, type ShotEdit } from './shots.ts';
 import { SHOW_ID, showContext } from './shows.ts';
 
 export const PORT = Number(process.env.STUDIO_API_PORT ?? 4310);
@@ -141,6 +142,27 @@ app.post('/api/drafts/:id/proposals/:proposal/:action', async (c) => {
   draft.updatedAt = new Date().toISOString();
   await saveDraft(draft);
   return c.json(draft);
+});
+
+// Shots: edit text for free; redraw and fix are paid and the page confirms them first.
+app.post('/api/shows/:show/episodes/:episode/shots/:number/:action', async (c) => {
+  const file = sceneFile(c.req.param('show'), c.req.param('episode'));
+  const number = Number(c.req.param('number'));
+  if (file === undefined || !Number.isInteger(number)) return c.json({ error: 'Not found' }, 404);
+  const body = (await c.req.json().catch(() => ({}))) as { rev?: string; lines?: ShotEdit['lines']; image?: string; instruction?: string; version?: string };
+  try {
+    const action = c.req.param('action');
+    if (action === 'edit') await editShot(file, number, body.rev ?? '', { lines: body.lines, image: body.image });
+    else if (action === 'redraw') await redrawShot(file, number);
+    else if (action === 'fix') await fixShotPicture(file, number, body.instruction ?? '');
+    else if (action === 'keep') await keepShotPicture(file, number);
+    else if (action === 'unkeep') await unkeepShotPicture(file, number);
+    else if (action === 'use-version') await useShotVersion(file, number, body.version ?? '');
+    else return c.json({ error: 'Unknown action' }, 400);
+  } catch (error) {
+    return c.json({ error: (error as Error).message }, error instanceof Conflict ? 409 : 400);
+  }
+  return c.json(await getEpisode(c.req.param('show'), c.req.param('episode')));
 });
 
 // Images and video, with range requests so the video player can seek.
