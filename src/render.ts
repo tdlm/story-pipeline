@@ -1,6 +1,6 @@
 import { copyFile, writeFile } from 'node:fs/promises';
 import { extname, join, relative } from 'node:path';
-import { ROOT, env, requireKey } from './env.ts';
+import { env, requireKey } from './env.ts';
 import { buildCaptions } from './captions.ts';
 import { resolveCartesiaVoice } from './cartesia.ts';
 import { remainingCredits, soundEffect, voiceProblems } from './elevenlabs.ts';
@@ -8,6 +8,7 @@ import { elevenLabsCost, parseVoice, speak, type Speech } from './speech.ts';
 import { ffmpegInfo, probeDuration, REQUIRED_FILTERS } from './ffmpeg.ts';
 import { needsImage, shotImage, unkeepShot, type ShotImage } from './images.ts';
 import { loadScene, type Scene } from './load.ts';
+import { withSceneLock } from './lock.ts';
 import { buildTimeline, type TimedShot } from './timeline.ts';
 import { ensureDir, log, mapPool } from './util.ts';
 import { contactSheet, joinClips, mixAudio, mux, renderClip, type Sound } from './video.ts';
@@ -20,13 +21,18 @@ export type RenderOptions = {
   regen: Set<string>;
   imagesOnly: boolean;
   yes: boolean;
+  /** Cancels the render between steps. A step already running (an API call, an ffmpeg job) finishes first. */
+  signal?: AbortSignal;
+  /** Receives progress. Without it, log messages are printed. */
+  onEvent?: (event: RenderEvent) => void;
+  makeClip?: ClipMaker;
 };
 
 const MAX_IMAGES_WITHOUT_YES = 25;
 
 const isRegen = (options: RenderOptions, id: string): boolean => options.regen.has('all') || options.regen.has(id);
 
-async function preflight(scene: Scene, options: RenderOptions): Promise<void> {
+async function preflight(scene: Scene, options: RenderOptions, log: (message: string) => void): Promise<void> {
   const { filters } = await ffmpegInfo();
   const missing = REQUIRED_FILTERS.filter((name) => !filters.has(name));
   if (missing.length > 0) {
@@ -78,29 +84,71 @@ async function preflight(scene: Scene, options: RenderOptions): Promise<void> {
   log(`  ${characters} characters of new speech (${credits.remaining.toLocaleString()} credits left)`);
 }
 
-export async function render(scenePath: string, options: RenderOptions): Promise<void> {
-  const started = Date.now();
-  const scene = await loadScene(scenePath);
-  const outDir = join(ROOT, 'out', scene.slug);
-  const work = join(outDir, 'work');
-  await ensureDir(join(outDir, 'shots'));
-  await ensureDir(work);
+/** Where a render is. The CLI prints only `log` events; the studio shows all of them. */
+export type RenderStage = 'images' | 'voices' | 'sound' | 'video' | 'mix';
 
-  log(`▸ ${scene.title}: ${scene.shots.length} shots, ${scene.aspect}${options.mock ? ', mock' : ''}${options.draft ? ', draft' : ''}`);
-  await preflight(scene, options);
+export type RenderEvent =
+  | { type: 'log'; message: string }
+  | { type: 'stage'; stage: RenderStage }
+  | { type: 'progress'; stage: RenderStage; done: number; total: number }
+  | { type: 'shot'; id: string; status: 'kept' | 'cached' | 'generated'; attempt: number; issues: string[] }
+  | { type: 'finished'; video?: string; report: string };
 
-  // 1. Images first: they cost the most to redo, so you can review them before paying for audio.
-  log('▸ Images');
-  const images = await mapPool(scene.shots, 3, async (shot) => {
+/** Makes one shot's clip. Swappable, so code-drawn animation can replace camera moves later. */
+export type ClipMaker = typeof renderClip;
+
+/** Prints log events, exactly as the CLI always has. */
+const printLogs = (event: RenderEvent): void => {
+  if (event.type === 'log') log(event.message);
+};
+
+/** One render in progress: the scene, its folders and how it reports. */
+type Run = {
+  scene: Scene;
+  options: RenderOptions;
+  outDir: string;
+  work: string;
+  started: number;
+  emit: (event: RenderEvent) => void;
+  log: (message: string) => void;
+  /** Throws if the render was cancelled. Called before each unit of work. */
+  check: () => void;
+};
+
+/** Runs `fn` over items with a concurrency limit, checking for cancel before each and reporting progress. */
+async function each<T, R>(run: Run, stage: RenderStage, items: readonly T[], limit: number, fn: (item: T, index: number) => Promise<R>): Promise<R[]> {
+  let done = 0;
+  run.emit({ type: 'progress', stage, done, total: items.length });
+  return mapPool(items, limit, async (item, index) => {
+    run.check();
+    const result = await fn(item, index);
+    run.emit({ type: 'progress', stage, done: ++done, total: items.length });
+    return result;
+  });
+}
+
+function startStage(run: Run, stage: RenderStage, label: string): void {
+  run.check();
+  run.emit({ type: 'stage', stage });
+  run.log(`▸ ${label}`);
+}
+
+/** 1. Images first: they cost the most to redo, so you can review them before paying for audio. */
+async function drawImages(run: Run): Promise<{ images: ShotImage[]; shotFiles: string[] }> {
+  const { scene, options, outDir } = run;
+  startStage(run, 'images', 'Images');
+  const images = await each(run, 'images', scene.shots, 3, async (shot) => {
     const regen = isRegen(options, shot.id);
     const image = await shotImage(scene, shot, { mock: options.mock, check: options.check, regen });
     if (regen && shot.keptFile !== undefined && !options.mock) {
       // A redrawn shot is no longer the approved one; keep it again once you like it.
       await unkeepShot(scene, shot);
-      log(`  ${shot.id}: unkept (redrawn; the kept image is saved as a version)`);
+      run.log(`  ${shot.id}: unkept (redrawn; the kept image is saved as a version)`);
     }
-    const status = image.kept === true ? 'kept' : image.cached ? 'cached' : `generated (attempt ${image.attempt})`;
-    log(`  ${shot.id}: ${status}${image.issues.length > 0 ? `, still has issues: ${image.issues.join('; ')}` : ''}`);
+    const status = image.kept === true ? 'kept' : image.cached ? 'cached' : 'generated';
+    run.emit({ type: 'shot', id: shot.id, status, attempt: image.attempt, issues: image.issues });
+    const label = status === 'generated' ? `generated (attempt ${image.attempt})` : status;
+    run.log(`  ${shot.id}: ${label}${image.issues.length > 0 ? `, still has issues: ${image.issues.join('; ')}` : ''}`);
     return image;
   });
   const shotFiles = await Promise.all(
@@ -113,16 +161,14 @@ export async function render(scenePath: string, options: RenderOptions): Promise
   );
   const sheet = join(outDir, 'contact-sheet.jpg');
   await contactSheet(shotFiles, sheet, scene.width, scene.height);
-  log(`  Contact sheet: ${relative(process.cwd(), sheet)}`);
+  run.log(`  Contact sheet: ${relative(process.cwd(), sheet)}`);
+  return { images, shotFiles };
+}
 
-  if (options.imagesOnly) {
-    await writeReport({ scene, options, outDir, images, video: undefined, started });
-    return;
-  }
-
-  // 2. Voices.
-  log('▸ Voices');
-  // Each line hears the same speaker's previous and next line, so the delivery flows across shots.
+/** 2. Voices. Each line hears the same speaker's previous and next line, so the delivery flows across shots. */
+async function voiceLines(run: Run): Promise<Speech[][]> {
+  const { scene, options } = run;
+  startStage(run, 'voices', 'Voices');
   const allLines = scene.shots.flatMap((shot) => shot.lines);
   const neighbour = (line: (typeof allLines)[number], step: -1 | 1): string | undefined => {
     for (let i = allLines.indexOf(line) + step; i >= 0 && i < allLines.length; i += step) {
@@ -130,9 +176,12 @@ export async function render(scenePath: string, options: RenderOptions): Promise
     }
     return undefined;
   };
-  const speeches = await mapPool(scene.shots, 2, (shot) =>
-    mapPool(shot.lines, 2, (line) =>
-      speak({
+  let done = 0;
+  run.emit({ type: 'progress', stage: 'voices', done, total: allLines.length });
+  return mapPool(scene.shots, 2, (shot) =>
+    mapPool(shot.lines, 2, async (line) => {
+      run.check();
+      const speech = await speak({
         text: line.text,
         voice: line.voice,
         settings: line.settings,
@@ -140,18 +189,19 @@ export async function render(scenePath: string, options: RenderOptions): Promise
         mock: options.mock,
         previousText: neighbour(line, -1),
         nextText: neighbour(line, 1),
-      }),
-    ),
+      });
+      run.emit({ type: 'progress', stage: 'voices', done: ++done, total: allLines.length });
+      return speech;
+    }),
   );
-  const spentCharacters = speeches.flat().reduce((sum, speech) => sum + speech.spentCharacters, 0);
+}
 
-  // 3. Timing: every shot lasts as long as its lines.
-  const timeline = buildTimeline(
-    scene.shots.map((shot, i) => ({ transition: shot.transition, hold: shot.hold, speeches: speeches[i] as Speech[] })),
-  );
+type Effect = { file: string; generated: boolean; start: number; volume: number; voice: false };
 
-  // 4. Sound effects: each layer starts `at` seconds into its shot and by default lasts the rest of it.
-  log('▸ Sound');
+/** 4. Sound effects: each layer starts `at` seconds into its shot and by default lasts the rest of it. */
+async function makeSounds(run: Run, timeline: { shots: TimedShot[] }): Promise<Effect[]> {
+  const { scene, options } = run;
+  startStage(run, 'sound', 'Sound');
   const layers = scene.shots.flatMap((shot, i) => {
     const timed = timeline.shots[i] as TimedShot;
     return shot.sfx.map((layer) => ({ ...layer, start: timed.start + layer.at, length: layer.seconds ?? Math.max(1, timed.duration - layer.at) }));
@@ -166,17 +216,21 @@ export async function render(scenePath: string, options: RenderOptions): Promise
     pending.set(key, created);
     return created;
   };
-  const effects = await mapPool(layers, 2, async (layer) => {
+  return each(run, 'sound', layers, 2, async (layer) => {
     const effect = await effectFor(layer.sound, layer.length);
-    return { file: effect.file, generated: effect.generated, start: layer.start, volume: layer.volume, voice: false };
+    return { file: effect.file, generated: effect.generated, start: layer.start, volume: layer.volume, voice: false as const };
   });
+}
 
-  // 5. Picture: one clip per shot, then crossfades.
-  log('▸ Video');
-  const clips = await mapPool(scene.shots, 2, async (shot, i) => {
+/** 5. Picture: one clip per shot, then crossfades. */
+async function makePicture(run: Run, timeline: { shots: TimedShot[]; total: number }, shotFiles: string[]): Promise<string> {
+  const { scene, work } = run;
+  const makeClip = run.options.makeClip ?? renderClip;
+  startStage(run, 'video', 'Video');
+  const clips = await each(run, 'video', scene.shots, 2, async (shot, i) => {
     const timed = timeline.shots[i] as TimedShot;
     const file = join(work, `clip-${String(i + 1).padStart(2, '0')}.mp4`);
-    await renderClip({
+    await makeClip({
       image: shotFiles[i] as string,
       out: file,
       seconds: timed.duration,
@@ -187,13 +241,21 @@ export async function render(scenePath: string, options: RenderOptions): Promise
     });
     return { file, start: timed.start, transition: shot.transition, transitionIn: timed.transitionIn };
   });
-  await joinClips(clips, join(work, 'picture.mp4'));
-  const pictureLength = await probeDuration(join(work, 'picture.mp4'));
+  run.check();
+  const picture = join(work, 'picture.mp4');
+  await joinClips(clips, picture);
+  const pictureLength = await probeDuration(picture);
   if (Math.abs(pictureLength - timeline.total) > 0.2) {
     throw new Error(`The joined picture is ${pictureLength.toFixed(2)}s but the timeline is ${timeline.total.toFixed(2)}s. Please report this.`);
   }
+  return picture;
+}
 
-  // 6. Sound mix and captions.
+/** 6. Sound mix, captions, and the finished video. */
+async function mixAndMux(run: Run, timeline: { shots: TimedShot[]; total: number }, effects: Effect[]): Promise<string> {
+  const { scene, options, work, outDir } = run;
+  run.check();
+  run.emit({ type: 'stage', stage: 'mix' });
   const sounds: Sound[] = [
     ...timeline.shots.flatMap((timed, i) =>
       timed.lines.map((line, j) => ({
@@ -204,7 +266,7 @@ export async function render(scenePath: string, options: RenderOptions): Promise
         fx: scene.shots[i]?.lines[j]?.fx,
       })),
     ),
-    ...effects.flatMap((effect) => (effect === undefined ? [] : [effect])),
+    ...effects,
   ];
   await mixAudio({
     sounds,
@@ -236,18 +298,69 @@ export async function render(scenePath: string, options: RenderOptions): Promise
     await writeFile(join(work, captions), ass);
   }
 
+  run.check();
   const video = join(outDir, `${scene.slug}${options.mock ? '-mock' : options.draft ? '-draft' : ''}.mp4`);
   await mux({ cwd: work, video: 'picture.mp4', audio: 'mix.wav', captions, out: video, draft: options.draft });
+  return video;
+}
 
-  await writeReport({
+/**
+ * Renders a scene in stages: images, voices, timing, sound, picture, mix. One render per scene at a time,
+ * across every process. `signal` cancels between steps; `onEvent` reports progress (the CLI prints the logs).
+ */
+export async function render(scenePath: string, options: RenderOptions): Promise<void> {
+  const scene = await loadScene(scenePath);
+  await withSceneLock(scene, () => renderScene(scene, options));
+}
+
+async function renderScene(scene: Scene, options: RenderOptions): Promise<void> {
+  const emit = options.onEvent ?? printLogs;
+  const outDir = join(env.outDir, scene.slug);
+  const run: Run = {
+    scene,
+    options,
+    outDir,
+    work: join(outDir, 'work'),
+    started: Date.now(),
+    emit,
+    log: (message) => emit({ type: 'log', message }),
+    check: () => options.signal?.throwIfAborted(),
+  };
+  await ensureDir(join(outDir, 'shots'));
+  await ensureDir(run.work);
+
+  run.log(`▸ ${scene.title}: ${scene.shots.length} shots, ${scene.aspect}${options.mock ? ', mock' : ''}${options.draft ? ', draft' : ''}`);
+  await preflight(scene, options, run.log);
+
+  const { images, shotFiles } = await drawImages(run);
+  if (options.imagesOnly) {
+    const report = await writeReport({ scene, options, outDir, images, video: undefined, started: run.started });
+    emit({ type: 'finished', report });
+    return;
+  }
+
+  const speeches = await voiceLines(run);
+  const spentCharacters = speeches.flat().reduce((sum, speech) => sum + speech.spentCharacters, 0);
+
+  // 3. Timing: every shot lasts as long as its lines.
+  const timeline = buildTimeline(
+    scene.shots.map((shot, i) => ({ transition: shot.transition, hold: shot.hold, speeches: speeches[i] as Speech[] })),
+  );
+
+  const effects = await makeSounds(run, timeline);
+  await makePicture(run, timeline, shotFiles);
+  const video = await mixAndMux(run, timeline, effects);
+
+  const report = await writeReport({
     scene,
     options,
     outDir,
     images,
-    video: { file: video, timeline: timeline.shots, total: timeline.total, spentCharacters, effects: effects.filter((e) => e?.generated).length },
-    started,
+    video: { file: video, timeline: timeline.shots, total: timeline.total, spentCharacters, effects: effects.filter((e) => e.generated).length },
+    started: run.started,
   });
-  log(`✓ ${relative(process.cwd(), video)} (${timeline.total.toFixed(1)}s)`);
+  emit({ type: 'finished', video, report });
+  run.log(`✓ ${relative(process.cwd(), video)} (${timeline.total.toFixed(1)}s)`);
 }
 
 async function writeReport(input: {
@@ -257,7 +370,7 @@ async function writeReport(input: {
   images: ShotImage[];
   video?: { file: string; timeline: TimedShot[]; total: number; spentCharacters: number; effects: number };
   started: number;
-}): Promise<void> {
+}): Promise<string> {
   const { scene, options, images, video } = input;
   const generated = images.reduce((sum, image) => sum + image.generated, 0);
   const mode = options.mock ? 'mock' : options.draft ? 'draft' : 'final';
@@ -291,5 +404,7 @@ async function writeReport(input: {
       lines.push(`- **${shot.id}**: ${(images[shot.index] as ShotImage).issues.join('; ')}. Fix the prompt or run with \`--regen ${shot.id}\`.`);
     }
   }
-  await writeFile(join(input.outDir, 'report.md'), `${lines.join('\n')}\n`);
+  const file = join(input.outDir, 'report.md');
+  await writeFile(file, `${lines.join('\n')}\n`);
+  return file;
 }
