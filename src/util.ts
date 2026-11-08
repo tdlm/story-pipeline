@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { copyFile, link, mkdir, readFile } from 'node:fs/promises';
+import { copyFile, link, mkdir, readFile, stat } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 
 export const sha = (value: unknown): string =>
@@ -8,13 +8,16 @@ export const sha = (value: unknown): string =>
     .digest('hex')
     .slice(0, 24);
 
-const fileHashes = new Map<string, string>();
+const fileHashes = new Map<string, { stamp: string; hash: string }>();
 
 export async function fileSha(path: string): Promise<string> {
+  // Remembered until the file changes, so a long-running server notices a replaced reference image.
+  const { mtimeMs, size } = await stat(path);
+  const stamp = `${mtimeMs}:${size}`;
   const known = fileHashes.get(path);
-  if (known !== undefined) return known;
+  if (known?.stamp === stamp) return known.hash;
   const hash = createHash('sha256').update(await readFile(path)).digest('hex').slice(0, 24);
-  fileHashes.set(path, hash);
+  fileHashes.set(path, { stamp, hash });
   return hash;
 }
 
