@@ -31,6 +31,8 @@ export const env = {
   captionFont: read('CAPTION_FONT', 'Impact'),
   /** Where generated images, voices and sounds are cached. Tests point this at a temp folder. */
   cacheDir: resolve(ROOT, read('STORY_CACHE_DIR', '.cache')),
+  /** The studio's own records: image versions now, later jobs and the spend ledger. Tests point this at a temp folder. */
+  studioDir: resolve(ROOT, read('STORY_STUDIO_DIR', '.studio')),
 };
 
 const KEY_NAMES = { geminiKey: 'GEMINI_API_KEY', elevenKey: 'ELEVENLABS_API_KEY', cartesiaKey: 'CARTESIA_API_KEY' } as const;

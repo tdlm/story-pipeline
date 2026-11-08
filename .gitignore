@@ -3,6 +3,7 @@ node_modules/
 .bak-ep03/
 .cache/
 out/
+.studio/
 .env
 .git-backup-*/
 
