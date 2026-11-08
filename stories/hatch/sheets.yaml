@@ -1,0 +1,127 @@
+# Reference sheets. `references: false` keeps these independent of the refs they produce.
+# Render these first, pick the good ones, and add them to `refs` in cast.yaml.
+#   pnpm render stories/hatch/sheets.yaml --images-only --no-check
+#   pnpm fix stories/hatch/sheets.yaml survivor "make the beanie mustard yellow, not orange"
+# Then copy from out/hatch-reference-sheets/shots/ into stories/hatch/refs/.
+
+title: Hatch reference sheets
+cast: cast.yaml
+aspect: "16:9"
+captions: false
+end_card: false
+
+shots:
+  - id: survivor
+    references: false
+    cast: [you]
+    image: >
+      Character turnaround sheet for the survivor on a plain warm-grey background, no
+      scenery: full body front view, side view and back view at the same scale, then three
+      head close-ups showing worried, determined and exhausted expressions. Then one full
+      body front view of him in his mustard-yellow hazmat suit with the dark round visor.
+      Evenly spaced, like a model sheet for an animated series.
+
+  - id: basement
+    references: false
+    location: basement
+    image: >
+      Wide establishing view of the whole shelter from one end, empty of people, so the
+      layout is clear: the ladder and square hatch, the vent pipe and crank, the cot, the
+      shelves, the workbench, the radio and the rug, lit by the amber bulbs.
+
+  - id: props
+    references: false
+    props: [hatch, radio, crank, monitor]
+    image: >
+      Prop sheet on a plain warm-grey background: the hatch seen from below, the radio from
+      the front, the crank on its vent pipe, and the monitor with the camera feed. Each
+      prop drawn clearly on its own, evenly spaced, like a model sheet.
+
+  - id: pets
+    references: false
+    cast: [dog, cat]
+    image: >
+      Model sheet for the two animals on a plain warm-grey background, no scenery: the dog
+      from the front, from the side and sitting, then the cat from the front, from the side
+      and curled up asleep. Evenly spaced, same scale throughout.
+
+  - id: living-room
+    references: false
+    location: home
+    image: >
+      Wide establishing view of the whole living room from the doorway, empty of people
+      and animals, so the layout is clear: the TV on the left, the couch facing it, the
+      front window and curtains on the back wall, the lamp, the coffee table, the dog bed.
+
+  - id: yard
+    references: false
+    location: yard
+    props: [hatch]
+    image: >
+      Wide establishing view of the front yard from the sidewalk at night: the little house
+      and porch, its lit front window, the square steel hatch closed and flush in the lawn
+      beside the porch, the picket fence, neighbours' houses across the street. No people.
+
+  - id: surface
+    references: false
+    location: surface
+    image: >
+      Wide establishing view of the street after the strike, empty, ash falling. A
+      small square hatch in the ground of one front yard.
+
+  # Added for Part 3. Copy the ones you keep to refs/dana.jpg and refs/intercom.jpg.
+  - id: dana
+    references: false
+    cast: [dana]
+    image: >
+      Character turnaround sheet for Dana on a plain warm-grey background, no scenery: full
+      body front view, side view and back view at the same scale, then three head close-ups
+      showing angry, frightened and pleading expressions. Then one full body front view of her
+      dusted grey with ash, scarf pulled down. Evenly spaced, like a model sheet for an
+      animated series.
+
+  - id: intercom
+    references: false
+    props: [intercom]
+    image: >
+      Prop sheet on a plain warm-grey background: the indoor intercom panel from the front
+      (speaker grille, LISTEN toggle switch shown up and down, push-to-talk button), the same
+      panel at an angle, and the outdoor weatherproof speaker box with its button. Evenly
+      spaced, like a model sheet.
+
+  # Added for Part 5. Copy the one you keep to refs/alvarez.jpg.
+  - id: alvarez
+    references: false
+    cast: [alvarez]
+    image: >
+      Character turnaround sheet for Mr. Alvarez on a plain warm-grey background, no scenery:
+      full body front view, side view and back view at the same scale, then two head close-ups,
+      one vacant and one with his head slowly turning. Evenly spaced, like a model sheet for an
+      animated series.
+
+  # Added for Part 6: a plate looking straight across the street at his house, from the
+  # Hendersons' side. Copy the one you keep to refs/across.jpg.
+  - id: across
+    references: false
+    image: >
+      Flat, head-on street view, like a stage set, drawn from the sidewalk on the OPPOSITE side of
+      a residential street. The camera looks straight across the street, square to it, not down
+      it: the road is a wide horizontal band of ash-grey asphalt running edge to edge across the
+      bottom third of the frame, with the near curb along the very bottom. On the far side of the
+      road, filling the middle of the frame and facing the camera squarely: one small single-storey
+      house with a front porch, a dark broken front window and a brown front door, ash on the roof;
+      a short broken picket fence along its front; and a small patchy grey front lawn between the
+      fence and the porch, where a square riveted steel hatch lies flush in the ground beside the
+      porch steps, clearly visible. Burned, partly collapsed neighbouring houses on both sides,
+      bare black trees, a flat pale grey sky, grey ash flakes falling. No vanishing point down the
+      street, no angled view along the houses. No people, no cars in the foreground.
+
+
+  # Added for Part 10. Copy the one you keep to refs/hound.jpg.
+  - id: hound
+    references: false
+    cast: [hound]
+    image: >
+      Model sheet for a cinder hound on a plain warm-grey background, no scenery: full body side
+      view standing, front view snarling, and one view mid-leap, all at the same scale, then a
+      head close-up. Evenly spaced, like a model sheet for an animated series.

@@ -1,0 +1,38 @@
+# Instagram profile picture options. Pick one, then use the file from out/hatch-avatar/shots/.
+#   pnpm render stories/hatch/avatar.yaml --images-only
+# Instagram shows it as a small circle (about 110px), so: one bold subject, centred, no text.
+
+title: Hatch avatar
+cast: cast.yaml
+aspect: "1:1"
+captions: false
+end_card: false
+
+shots:
+  - id: face
+    cast: [you]
+    image: >
+      Profile picture. Head-and-shoulders portrait of the survivor, centred, facing the
+      viewer with a tired but determined look, his mustard-yellow beanie bright and bold.
+      Plain flat background of dark ash grey with a few grey flakes drifting. Big simple
+      shapes and thick outlines so it reads at a tiny size. Everything important stays in
+      the middle of the frame, because the edges will be cropped to a circle. No text.
+
+  - id: hatch
+    props: [hatch]
+    image: >
+      Profile picture. Looking straight down at the square riveted steel hatch set in a
+      lawn covered in grey ash, its lid open, warm amber light glowing up out of the dark
+      opening. Centred and symmetrical, big simple shapes and thick outlines so it reads at
+      a tiny size. Everything important stays in the middle of the frame, because the edges
+      will be cropped to a circle. No people. No text.
+
+  - id: duo
+    cast: [you, dog]
+    image: >
+      Profile picture. Head-and-shoulders portrait of the survivor holding Milo the dog
+      against his chest, both facing the viewer, warm amber light on their faces, his
+      mustard-yellow beanie bright and bold. Plain flat background of dark ash grey. Big
+      simple shapes and thick outlines so it reads at a tiny size. Everything important
+      stays in the middle of the frame, because the edges will be cropped to a circle.
+      No text.

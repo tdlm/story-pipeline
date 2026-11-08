@@ -1,0 +1,21 @@
+# The picture behind the end card on every episode. Render once, keep it, done:
+#   pnpm render stories/hatch/endcard.yaml --images-only
+#   pnpm keep stories/hatch/endcard.yaml all
+# Episodes point at kept/endcard/card.jpg. A screenshot of the game works too: put it in refs/
+# and change `end_card.image` in each episode.
+
+title: Hatch end card
+cast: cast.yaml
+aspect: "9:16"
+captions: false
+end_card: false
+
+shots:
+  - id: card
+    location: basement
+    cast: [you]
+    props: [hatch]
+    image: >
+      The survivor stands small at the bottom of the ladder, looking up at the open square
+      hatch, warm light pouring down over him. The top half of the frame is calm, dark,
+      empty wall and ceiling with nothing in it, leaving room for text.
