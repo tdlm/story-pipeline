@@ -1,0 +1,245 @@
+# HATCH: the series bible for images and voices.
+# Story truth lives in the game repo (docs/STORY.md). This file is only how it looks and sounds.
+#
+# Reference images go in refs/. Start with sheets.yaml (see README.md in this folder),
+# then add the sheets you like to the `refs` lists below. More good references = more consistency.
+
+style: >
+  Hand-drawn 2D comic illustration with minimalist stick-figure characters: smooth
+  round white heads with small expressive eyes and brows, thin black stick limbs and
+  bodies, clothing drawn as simple flat shapes. Bold dark ink outlines on everything,
+  slightly uneven like a brush pen, with light crosshatching in the shadows.
+  Flat, muted colors with simple cel shading. Inside the shelter the palette is warm:
+  amber bulb light, wood browns, dusty ochre, deep brown shadows. Outside it is ash:
+  desaturated greys, a pale flat sky, grey flakes drifting like snow.
+  The one strong color is mustard yellow, saved for the survivor's beanie and suit.
+  At home before the strike the light is soft lamp light and blue TV glow; the emergency
+  alert is the only harsh red.
+  Environments are simplified but lived-in: clear shapes, hand-drawn detail lines,
+  no realistic textures. Cinematic framing with a clear foreground and background.
+  Never photorealistic, never 3D-rendered, no glossy or painterly realism, no anime.
+
+# Added after every episode for 3 seconds. Make the picture once with endcard.yaml.
+end_card:
+  image: kept/endcard/card.jpg
+  seconds: 3
+  text: |
+    *HATCH*
+    The game this story comes from.
+    Play free in your browser:
+    *tdlm.github.io/hatch*
+    (link in bio)
+
+narrator:
+  voice: bIHbv24MWmeRgasZH58o # Will: relaxed, young (premade, works on the free plan)
+  settings: { stability: 0.5, similarity_boost: 0.8 }
+
+characters:
+  you:
+    description: >
+      The survivor, a man in his forties who built this shelter himself. Average-height
+      stick figure, round plain white head (never skin-toned or realistic, same as everyone else), tired eyes, faint stubble. One distinctive feature:
+      a mustard-yellow knit beanie, always on, with messy brown hair sticking out under it.
+      Slate-blue canvas work coat with big pockets, plain sleeves, black work gloves. Only later, when he climbs
+      up into the ash after the strike, does he wear a mustard-yellow hazmat suit with a dark
+      round visor. In the suit he is drawn full-bodied and baggy (black gloves, dark boots, round
+      helmet), never as a thin stick figure. In his house and yard on the night of the strike:
+      beanie and coat, no suit.
+    refs: [refs/survivor.jpg, kept/ep02/one.jpg]
+    # Cartesia's Tanner. Any voice works here: an ElevenLabs id, or cartesia:<name or id>.
+    #   pnpm voices --play cartesia:Tanner --say "Better start cranking."
+    voice: &survivor cartesia:Tanner
+  dog:
+    description: >
+      His dog, Milo (a boy). After the strike he never goes up top: he stays in the shelter. A scruffy medium-sized mutt with sandy-tan fur, darker floppy ears with one ear
+      always flipped up, big dark eyes, and a worn brown leather collar. Drawn in the same
+      simple ink style as the people, with an expressive face.
+    refs: [refs/pets.jpg, kept/ep02/one.jpg]
+  cat:
+    description: >
+      His cat, Zoey (a boy). A small black cat with white patches: a white chest, white
+      paws, and a white blaze down the middle of his face. Big green eyes. Drawn in the same
+      simple ink style, with an expressive face.
+    refs: [refs/pets.jpg, kept/ep02/one.jpg]
+  dana:
+    description: >
+      Dana, his neighbour from across the street, a woman in her forties who called him
+      crazy for twenty years. Stick figure like the survivor, round white head, sharp tired
+      eyes, dark curly hair pulled into a messy bun. Dusty teal puffer jacket, faded red
+      scarf, grey work gloves. After the strike she is dusted grey with ash from head to toe.
+      Inside the shelter (from Part 4 on) her jacket, scarf and gloves stay up top: she wears a
+      plain grey sweater and socks.
+    refs: [refs/dana.jpg]
+    # She speaks only through the intercom for now (the `dana-intercom` speaker below),
+    # so this voice is the anchor for both.
+    voice: &dana cartesia:Katie
+  dana-raincoat:
+    description: >
+      Dana dressed to go up top without a suit (Part 11): his old dark green hooded raincoat,
+      far too big for her, hood up, pink rubber dish gloves, a pair of swim goggles, and a wet
+      white dish towel tied over her nose and mouth. Dark curly hair poking out of the hood.
+      Same plain white round cartoon face as always.
+    refs: [refs/dana.jpg]
+  dana-scared:
+    description: Dana in the shelter, frightened. Same voice as dana.
+    voice: *dana
+    settings: { emotion: scared, speed: 1.1 }
+  dana-intercom:
+    description: Dana's voice through the shelter intercom. Never shown.
+    voice: *dana
+    # Cartesia emotion (beta). Primary emotions work best: scared, angry, sad, calm, content, neutral.
+    settings: { emotion: scared, speed: 1.1 }
+    fx: radio
+  hooded:
+    description: >
+      The hooded knocker from Part 2: a thin figure in a grey hooded coat, hood up, face
+      always hidden in shadow, dusted with ash. Human height and build. Never a creature:
+      no glowing eyes, no strange limbs. Moves stiffly.
+    refs: [kept/ep02/vote.jpg]
+  alvarez:
+    description: >
+      Mr. Alvarez from number nine, across the street: an older man taken by the ash. Stick
+      figure like everyone else, round head greyed over with ash, thin grey moustache, vacant
+      half-closed eyes that never focus. Faded plaid bathrobe over pyjamas, one slipper. Dusted
+      grey from head to toe. Moves slowly and stiffly. Human, never a monster: no glowing eyes,
+      no rot, no strange limbs.
+    refs: [refs/alvarez.jpg]
+  carol:
+    description: >
+      Carol Henderson, from across the street, taken by the ash: the hooded figure from Parts 2
+      to 4. An older woman, stick figure like everyone else, round head greyed over with ash,
+      short grey curls, vacant tired eyes. Long grey hooded coat, usually with the hood slipped
+      back now. Dusted grey from head to toe. Moves slowly. Human and sad, never a monster: no
+      glowing eyes, no rot, no strange limbs.
+    refs: [refs/carol.jpg]
+  hank:
+    description: Hank Henderson's voice on his answering machine. Never shown.
+    voice: cartesia:0d42f0f6-c019-4082-b250-1c16133d1c82 # Howard
+    fx: radio
+  trader:
+    description: >
+      The trader: a big bearded man in his fifties, stick figure like everyone else, with a round
+      plain white cartoon head (never skin-toned or realistic, no big nose), small dot eyes,
+      bushy grey-brown beard, a dark grey knitted cap (never mustard) with goggles pushed up on it, a dusty patched army
+      coat, and an enormous overstuffed backpack hung with pots, rope and jerry cans. Calm and
+      unhurried. Seen only on the hatch camera so far.
+    refs: []
+    # Only heard through the radio and the intercom so far. Placeholder voice: pick one with
+    #   pnpm voices --cartesia --search man
+    voice: cartesia:Kyle
+    fx: radio
+  hound:
+    description: >
+      A cinder hound: what the ash made of somebody's dog. Medium-sized, lean and ribby, drawn in
+      the same ink style as Milo but grey all the way through, its fur gone to ragged flakes of
+      ash, faint wisps of ash trailing off it as it moves. Long legs, low head, lips pulled back.
+      Its eyes catch the light with a dull orange glint, like embers. No collar. Never a demon or
+      a werewolf: still clearly a dog, just wrong.
+    refs: [refs/hound.jpg]
+  radio:
+    description: The voice on the 6:14 broadcast. Never shown.
+    # Same voice as `you`, through a radio speaker. Nobody will notice until the third bunker.
+    voice: *survivor
+    fx: radio
+    settings: { stability: 0.85, style: 0, speed: 0.92 }
+
+locations:
+  home:
+    description: >
+      The survivor's small house, the living room on a Saturday night. A worn brown couch
+      with a knitted blanket, a coffee table with a soda can and a bowl of chips, a boxy
+      TV on a low cabinet, a floor lamp, framed photos, a dog bed, and a front window with
+      curtains looking out at the street. Layout (it never changes): the TV is against the
+      left wall, the couch faces it from the right, the front window is in the back wall.
+    refs: [refs/living-room.jpg]
+  yard:
+    description: >
+      The survivor's small front yard at night, before the strike: patchy lawn, a low
+      picket fence, his little house with a porch and a lit front window, and a square
+      steel hatch set flush into the lawn beside the porch. Across the street, neighbours'
+      houses with porch lights on.
+    refs: [refs/yard.jpg]
+  basement:
+    description: >
+      The survivor's own homemade shelter under his house, cozy and cluttered.
+      Wood-panelled walls, a low ceiling with beams, warm amber bulbs on cords, a
+      worn rug, a camp cot with a blanket, shelves of tins with scribbled labels,
+      a small workbench, a wooden radio on a shelf, a creased blueprint pinned to the
+      wall, a vent pipe with a hand crank, and a steel ladder up to a square ceiling hatch.
+      Layout (it never changes): the ladder stands upright against the middle of the back
+      wall, straight up into the hatch. The vent pipe runs floor to ceiling a step to the
+      right of the ladder, with the crank on its side. The workbench and pinned blueprint
+      are left of the ladder; the cot and the shelves of tins are along the left wall; the
+      radio sits on the lower shelf; a doorway is in the right wall.
+    refs: [refs/basement.jpg]
+  across:
+    description: >
+      His street after the strike, seen straight across from the opposite sidewalk (the
+      Hendersons' side): the road running left to right along the bottom, his small porch house
+      facing the camera, broken picket fence, patchy grey lawn with the square steel hatch set in
+      the grass to the right of the front path, beside the porch, never on the path or sidewalk, burned houses either side, ash falling.
+    refs: [refs/across.jpg]
+  surface:
+    description: >
+      The survivor's suburban street after the strike: burned-out houses and cars,
+      bare black trees, everything coated in grey ash, more ash drifting down, a pale
+      flat sky. Quiet and empty.
+    refs: [refs/surface.jpg]
+
+props:
+  hatch:
+    description: >
+      Square riveted steel hatch in the ceiling with a hinged lid, a lever handle and a
+      rubber seal, at the top of a steel ladder. Not round.
+    refs: [refs/basement.jpg, refs/props.jpg]
+  radio:
+    description: >
+      Old wooden tabletop radio with a cloth speaker grille, two knobs and a glowing
+      amber tuning dial.
+    refs: [refs/props.jpg]
+  crank:
+    description: >
+      Hand crank with a worn wooden grip on the side of a metal vent pipe that runs up
+      through the ceiling, with a small fan housing.
+    refs: [refs/basement.jpg, refs/props.jpg]
+  tv:
+    description: Boxy old TV on a low cabinet in the living room.
+    refs: [refs/living-room.jpg]
+  phone:
+    description: An ordinary smartphone.
+    refs: []
+  monitor:
+    description: >
+      Small boxy CRT monitor on the workbench showing the hatch camera feed: grainy,
+      green-tinted, with ash streaks across the lens. The camera is fixed and never moves:
+      it always shows the same view, a bank of ash on the left and an upright steel frame on
+      the right, with people outside facing it (or walking away from it) in the middle.
+    refs: [refs/props.jpg]
+  intercom:
+    description: >
+      The shelter intercom: a small boxy olive-green metal panel with a round speaker grille,
+      a black toggle switch labelled ON above and OFF below, and a large black button
+      labelled PUSH-TALK. No other labels. It sits on the
+      counter in front of the monitor. Outside, beside the hatch, a small weatherproof
+      speaker box with one button.
+    refs: [refs/intercom.jpg]
+  vent-cap:
+    description: >
+      The shelter's air intake up top: a short steel pipe sticking out of the lawn near the
+      hatch, topped with a mushroom-shaped cap over a mesh screen and a round filter.
+    refs: []
+  dosimeter:
+    description: >
+      A chunky wrist dosimeter strapped over the cuff of his hazmat suit: a round analog dial
+      with green, yellow and red bands and a thin needle, in a scuffed metal case.
+    refs: []
+  nail-gun:
+    description: >
+      Hank's cordless nail gun: a chunky yellow-and-black power tool with a pistol grip, a long
+      nose and a strip of nails loaded along the bottom. Battered but clean.
+    refs: []
+  road-flare:
+    description: >
+      A red road flare: a stick about a foot long with a white cap. Lit, it burns with a bright
+      red-pink flame and throws hard red light and smoke.
+    refs: []
