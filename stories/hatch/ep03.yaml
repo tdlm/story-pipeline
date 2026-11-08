@@ -1,0 +1,164 @@
+# HATCH, Part 3: The Knock.
+# Written for the "stay quiet" result of Part 2's vote (about 37 to 1 at the first count; said as 95%).
+# The hooded knocker stands, then walks stiffly to the next house (same walk as Part 2's yard figure;
+# never confirmed as an ash-walker). Next morning: the same 6:14 tape, word for word. Then Dana from
+# across the street, through the intercom: her warning, "The Hendersons", her pantry.
+# Vote: let her stay, or send her back for the food first. She joins by Part 4 either way.
+#
+# The hatch never opens in this part. Everyone outside is seen on the monitor and heard on the intercom
+# (listen switch to hear, push-to-talk to answer).
+#
+# Plates: monitor shots are cut from Part 2's kept `vote` image, so the monitor, the counter and the
+# camera's view of the hatch never change. In kept/ep02/vote.jpg the screen is at about x 0.71, y 0.52.
+# Room shots use refs/basement.jpg (cot ~0.3, ladder ~0.57, pipe ~0.66).
+# Shots 2, 3, 5 and 6 reuse Part 2's kept images as they are.
+
+title: The Knock
+cast: cast.yaml
+aspect: "9:16"
+header: "HATCH · PART 3"
+
+shots:
+  - id: hush
+    location: basement
+    cast: [you, dog, cat]
+    props: [hatch]
+    plate: refs/basement.jpg
+    plate_focus: [0.5, 0.62]
+    plate_zoom: 1.1
+    image: >
+      The survivor crouches at the foot of the ladder, looking up at the closed hatch, one
+      finger raised to his lips. His other hand rests on the dog's collar; the dog sits pressed
+      against him, ears up, staring at the hatch. The cat crouches flat on the workbench, ears
+      back, watching the hatch too.
+    avoid: [open hatch, light at the hatch edges, anyone else in the shelter]
+    move: push-in
+    sfx: tense silence, a faint low hum, a dog whining softly
+    lines:
+      - narrator: "Ninety-five percent of you said stay *quiet*."
+      - narrator: "So you don't make a *sound*."
+
+  - id: knock
+    image_file: kept/ep02/knock.jpg
+    move: push-in
+    # One knock, generated once and placed three times, so it's always exactly three.
+    sfx:
+      - { sound: "one single heavy knock of a fist on a thick steel hatch, echoing in a small room", at: 0.2, seconds: 1, volume: 1 }
+      - { sound: "one single heavy knock of a fist on a thick steel hatch, echoing in a small room", at: 1.4, seconds: 1, volume: 1 }
+      - { sound: "one single heavy knock of a fist on a thick steel hatch, echoing in a small room", at: 2.6, seconds: 1, volume: 1 }
+    lines:
+      - narrator: "Three more knocks. *Slower* this time."
+
+  - id: feed
+    image_file: kept/ep02/vote.jpg
+    move: push-in
+    lines:
+      - narrator: "On the camera, they don't call out. They don't *move*."
+
+  - id: walks-off
+    cast: [hooded]
+    props: [monitor]
+    plate: kept/ep02/vote.jpg
+    plate_focus: [0.71, 0.52]
+    plate_zoom: 2.5
+    image: >
+      Close-up of the monitor. On the grainy green camera feed, the same hooded figure has
+      turned away from the hatch and is walking off through the falling ash toward a
+      neighbour's porch light in the distance. Back to the camera, walking stiffly, arms
+      hanging straight at their sides.
+    avoid: [a visible face, glowing eyes, monster or creature features, anyone else on the screen]
+    move: still
+    sfx: wind, ash hissing on a microphone, slow dragging footsteps fading out
+    lines:
+      - narrator: "Then they turn... and walk to the *next* house."
+
+  - id: six-fourteen
+    image_file: kept/ep02/six-fourteen.jpg
+    move: push-in
+    sfx: radio switching on, crackling static
+    lines:
+      - narrator: "Six fourteen. The radio comes *on*."
+
+  - id: lantern
+    image_file: kept/ep02/lantern.jpg
+    move: push-in
+    lines:
+      - radio: "This is the Lighthouse station. Count your people."
+      - you: "Same words. Every morning. Word for *word*."
+
+  - id: frantic
+    location: basement
+    cast: [you, dog, cat]
+    props: [hatch]
+    plate: refs/basement.jpg
+    plate_focus: [0.45, 0.6]
+    image: >
+      The survivor jolts upright on the cot, blanket thrown off, eyes wide, looking toward the
+      hatch. The dog stands at the foot of the ladder barking up at the closed hatch, hackles
+      up. The cat bolts across the rug, a black-and-white blur, ears flat.
+    avoid: [open hatch, light at the hatch edges, anyone else in the shelter]
+    move: push-in
+    sfx:
+      - { sound: "fast frantic pounding of fists on a thick steel hatch, many rapid heavy bangs, no voices", volume: 1 }
+      - { sound: "a medium-sized dog barking hard and fast indoors", at: 0.4, volume: 0.5 }
+    lines:
+      - narrator: "Then: knocking. Fast. *Frantic*."
+
+  - id: dana-feed
+    cast: [dana]
+    props: [monitor]
+    plate: kept/ep02/vote.jpg
+    plate_focus: [0.71, 0.52]
+    plate_zoom: 2.5
+    image: >
+      Close-up of the monitor. On the grainy green camera feed, Dana stands right in front of
+      the camera beside the hatch, dusted grey with ash, scarf pulled down from her mouth,
+      shouting up into the lens, one gloved fist raised to pound the hatch.
+    avoid: [the hooded figure, a creature]
+    move: push-in
+    sfx: muffled pounding on steel, wind
+    lines:
+      - narrator: "You know her. Dana, from across the *street*."
+      - narrator: "Twenty years, she called you *crazy*."
+
+  - id: intercom
+    cast: [you, dana]
+    props: [monitor, intercom]
+    plate: kept/ep02/vote.jpg
+    plate_focus: [0.72, 0.62]
+    plate_zoom: 2
+    image: >
+      Close-up of the counter in front of the monitor, where the intercom panel now sits in
+      place of the wrench and screwdriver. The survivor's gloved finger flips the panel's
+      LISTEN toggle switch up; his thumb hovers near the push-to-talk button. On the monitor's
+      green feed, Dana leans in close to the outdoor speaker box beside the hatch, talking.
+    avoid: [the hooded figure, open hatch]
+    move: push-in
+    sfx: a toggle switch clicking, then a burst of intercom static
+    lines:
+      - dana-intercom: "...heard your *dog*! Please!"
+      - dana-intercom: "Don't open for the one in the hood. She's been at every door on the street."
+      - you: "Did anyone let her *in*?"
+      - dana-intercom: "The *Hendersons*."
+
+  - id: vote
+    cast: [you, dana, dog, cat]
+    props: [monitor, intercom, hatch]
+    plate: kept/ep02/vote.jpg
+    image: >
+      The same over-the-shoulder view of the survivor at the monitor. On the green feed, Dana
+      is close to the camera, pleading. The intercom panel sits on the counter in front of the
+      monitor, in place of the wrench and screwdriver, and his gloved hand rests on its
+      push-to-talk button instead of the hatch lever. In the background, the dog sits at the
+      foot of the ladder wagging, looking up at the closed hatch. The cat crouches on top of
+      the stack of tins on the counter, watching the screen warily. A little ash dust sifts
+      from the edges of the closed hatch.
+    avoid: [open hatch, light at the hatch edges, the hooded figure, anyone inside the shelter but the survivor and the pets]
+    move: push-in
+    hold: 4
+    lines:
+      - dana-intercom: "Please. Let me *in*."
+      - you: "I packed for *one*."
+      - dana-intercom: "My pantry's full. Across the street."
+      - narrator: "Let her stay? Or send her back for it *first*?"
+      - narrator: "Comment *one* or *two*."
