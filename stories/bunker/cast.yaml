@@ -1,0 +1,45 @@
+# The series bible for images and voices.
+# Every image prompt starts with `style`. Every shot that names a character,
+# location or prop sends that entry's reference images along with the prompt.
+# Paths in `refs` are relative to this file.
+
+style: >
+  Comic, dark style with expressive stick figures. Hand-inked lines, gritty
+  crosshatching, muted gray palette with warm amber light accents.
+
+narrator:
+  voice: JBFqnCBsd6RMkjVDRZzb # placeholder: run `pnpm voices` and pick one
+  settings: { stability: 0.55, similarity_boost: 0.8 }
+
+characters:
+  older:
+    description: >
+      Older brother. Tall, lanky stick figure, about twice the younger brother's
+      height. Round white head with a few loose hair strands and tired, heavy-lidded
+      eyes. Dark gray zip-up hoodie with the hood down, thin black stick legs.
+    # The bunker image shows both brothers in the scene; the sheet shows turnarounds.
+    refs: [refs/brothers-sheet.jpg, refs/bunker-brothers.jpg]
+    voice: SET_ME # run `pnpm voices` and paste an id
+  younger:
+    description: >
+      Younger brother. Small stick figure, about half the older brother's height.
+      Round white head with a few hair tufts on top and big round worried eyes.
+      Thin black stick-figure body and limbs, no clothes.
+    refs: [refs/brothers-sheet.jpg, refs/bunker-brothers.jpg]
+    voice: SET_ME # a young voice; search with `pnpm voices --search child`
+
+locations:
+  bunker:
+    description: >
+      Cramped underground concrete bunker. Metal bunk beds, a wooden table with a
+      map and tin cans, a ceiling vent, a generator with an amber glow, a steel
+      ladder up to a square hatch, a small toilet room, a tiny kitchen with food
+      cabinets, and a single bare bulb hanging on a wire.
+    refs: [refs/bunker-brothers.jpg]
+
+props:
+  hatch:
+    description: >
+      Square riveted steel hatch in the bunker ceiling with a hinged lid and a
+      handle, at the top of a steel ladder. Not round.
+    refs: [refs/bunker-brothers.jpg]

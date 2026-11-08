@@ -1,0 +1,94 @@
+# One episode. Each shot is one image on screen while its lines play.
+# A shot lasts as long as its lines (plus a little padding), or `hold` seconds if longer.
+#
+#   image:      what the picture shows (the style, characters and location are added for you)
+#   location / cast / props:  ids from cast.yaml; their reference images go with the prompt
+#   move:       push-in, pull-out, pan-left, pan-right, pan-up, pan-down, still
+#   transition: cut (default), fade, fadeblack
+#   lines:      - speaker: "text". Wrap a word in *stars* to color it in the captions.
+#   sfx:        a sound effect generated to fit the shot (sfx_volume: 0 to 2, default 0.5)
+#   image_file: use a picture you already have instead of generating one
+
+title: The Last Can
+cast: cast.yaml
+aspect: "9:16"
+
+shots:
+  - id: last-can
+    location: bunker
+    cast: [older, younger]
+    image: >
+      The two brothers sit at the table under the bare bulb. One unopened tin can
+      stands between them. The older brother stares at it; the younger brother
+      looks up at him.
+    move: push-in
+    sfx: low electrical generator hum in a small concrete room
+    lines:
+      - narrator: "Day *forty*. One can left."
+
+  - id: younger-asks
+    location: bunker
+    cast: [younger]
+    image: >
+      Close-up of the younger brother's face, lit from above by the bare bulb,
+      eyes wide, looking up at someone off screen.
+    move: push-in
+    lines:
+      - younger: "Are we going up?"
+
+  - id: ladder
+    location: bunker
+    cast: [older]
+    props: [hatch]
+    image: >
+      Low angle from the floor looking up the steel ladder at the closed square
+      hatch. The older brother's hand grips the bottom rung.
+    move: pan-up
+    lines:
+      - narrator: "The hatch hasn't opened since the sirens."
+
+  - id: generator
+    location: bunker
+    image: >
+      The generator in the corner, its amber light flickering and dimming.
+      Long shadows stretch across the empty bunker.
+    move: pull-out
+    sfx: old generator sputtering and slowing down
+    sfx_volume: 0.7
+    lines:
+      - narrator: "And the generator is *dying*."
+
+  - id: promise
+    location: bunker
+    cast: [older, younger]
+    image: >
+      The older brother kneels down to the younger brother's height and holds his
+      shoulders with both hands. Both look scared but determined.
+    move: push-in
+    lines:
+      - older: "Stay here. Lock it behind me."
+      - younger: "No. We go *together*."
+
+  - id: knock
+    location: bunker
+    props: [hatch]
+    image: >
+      View from below of the closed square hatch. Dust shakes loose from its
+      edges and falls through the light of the bare bulb.
+    move: push-in
+    sfx: three slow heavy knocks on a thick metal hatch, echoing
+    sfx_volume: 1
+    lines:
+      - narrator: "Then something *knocks*. From the outside."
+
+  - id: vote
+    location: bunker
+    cast: [older, younger]
+    props: [hatch]
+    image: >
+      The two brothers frozen at the bottom of the ladder, looking up at the
+      closed hatch. A thin line of light shows around its edge.
+    move: push-in
+    hold: 4
+    lines:
+      - narrator: "Open it, or stay *silent*? Comment one or two."
