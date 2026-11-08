@@ -6,6 +6,8 @@ out/
 .studio/
 studio/web/.next/
 studio/web/next-env.d.ts
+# Linked from ~/Dev/skills, so there's one copy to maintain
+studio/.claude/skills/scottify
 .env
 .git-backup-*/
 
