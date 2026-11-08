@@ -1,0 +1,12 @@
+# What Claude reads before writing for this show. Paths are relative to this folder; ~/ is your home folder.
+name: HATCH
+context:
+  - README.md
+  - ARC.md
+  - VOTES.md
+  - INSIGHTS.md
+  - cast.yaml
+  # The story truth: episodes reveal it the way the game does, in fragments.
+  - ~/Dev/Games/Hatch/docs/STORY.md
+recent_episodes: 3
+skill: scottify
