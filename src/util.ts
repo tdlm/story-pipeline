@@ -52,19 +52,41 @@ export async function mapPool<T, R>(
 }
 
 /** fetch with retries on network errors, 429 and 5xx. Throws with the response body otherwise. */
-export async function request(url: string, init: RequestInit, label: string): Promise<Response> {
-  const maxAttempts = 4;
+export type Attempt = { attempt: number; ok: boolean; status?: number; error?: string; ms: number };
+
+export type RequestOptions = {
+  maxAttempts?: number;
+  /** Retry when the connection drops. Off for paid calls: the provider may have done (and charged for) the work. */
+  retryNetworkErrors?: boolean;
+  /** Which HTTP errors are worth retrying. */
+  retryStatus?: (status: number) => boolean;
+  /** First retry waits twice this, then doubling. */
+  baseDelayMs?: number;
+  /** Told about every attempt, including retries and failures. */
+  onAttempt?: (attempt: Attempt) => Promise<void> | void;
+};
+
+export async function request(url: string, init: RequestInit, label: string, options: RequestOptions = {}): Promise<Response> {
+  const maxAttempts = options.maxAttempts ?? 4;
+  const retryNetworkErrors = options.retryNetworkErrors ?? true;
+  const retryStatus = options.retryStatus ?? ((status: number) => status === 429 || status >= 500);
+  const baseDelayMs = options.baseDelayMs ?? 1000;
   for (let attempt = 1; ; attempt++) {
+    const started = Date.now();
     let response: Response;
     try {
       response = await fetch(url, init);
     } catch (error) {
-      if (attempt >= maxAttempts) {
-        throw new Error(`${label}: network error: ${(error as Error).message}`);
+      const message = (error as Error).message;
+      await options.onAttempt?.({ attempt, ok: false, error: message, ms: Date.now() - started });
+      if (!retryNetworkErrors) {
+        throw new Error(`${label}: the connection dropped (${message}). It may still have been charged, so it wasn't retried.`);
       }
-      await sleep(1000 * 2 ** attempt);
+      if (attempt >= maxAttempts) throw new Error(`${label}: network error: ${message}`);
+      await sleep(baseDelayMs * 2 ** attempt);
       continue;
     }
+    await options.onAttempt?.({ attempt, ok: response.ok, status: response.status, ms: Date.now() - started });
     if (response.ok) return response;
 
     const body = await response.text();
@@ -75,9 +97,8 @@ export async function request(url: string, init: RequestInit, label: string): Pr
           `at https://aistudio.google.com/apikey, wait a few minutes, and run again.\n${body.slice(0, 300)}`,
       );
     }
-    const retryable = response.status === 429 || response.status >= 500;
-    if (retryable && attempt < maxAttempts) {
-      await sleep(1000 * 2 ** attempt);
+    if (retryStatus(response.status) && attempt < maxAttempts) {
+      await sleep(baseDelayMs * 2 ** attempt);
       continue;
     }
     throw new Error(`${label} failed (HTTP ${response.status}): ${body.slice(0, 600)}`);
