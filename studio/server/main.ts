@@ -5,12 +5,14 @@ import { Readable } from 'node:stream';
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
-import type { Draft, TurnEvent } from './api-types.ts';
+import type { Draft, ShotTurnEvent, TurnEvent } from './api-types.ts';
 import { runTurn } from './claude.ts';
 import { accept, addAttachments, createDraft, listDrafts, loadDraft, saveDraft } from './drafts.ts';
 import { runFakeTurn } from './fake-claude.ts';
 import { STORIES, getEpisode, listShows } from './library.ts';
 import { mediaFile } from './media.ts';
+import { askAboutShot, askAboutShotFake, loadShotChat } from './shot-assist.ts';
+import { loadScene } from '../../src/load.ts';
 import { Conflict, editShot, fixShotPicture, keepShotPicture, redrawShot, sceneFile, unkeepShotPicture, useShotVersion, type ShotEdit } from './shots.ts';
 import { SHOW_ID, showContext } from './shows.ts';
 
@@ -142,6 +144,34 @@ app.post('/api/drafts/:id/proposals/:proposal/:action', async (c) => {
   draft.updatedAt = new Date().toISOString();
   await saveDraft(draft);
   return c.json(draft);
+});
+
+// Asking Claude about one shot: it looks at the picture and suggests; it never changes or pays for anything.
+app.get('/api/shows/:show/episodes/:episode/shots/:number/chat', async (c) => {
+  const file = sceneFile(c.req.param('show'), c.req.param('episode'));
+  const scene = file === undefined ? undefined : await loadScene(file);
+  const shot = scene?.shots[Number(c.req.param('number')) - 1];
+  if (scene === undefined || shot === undefined) return c.json({ error: 'Not found' }, 404);
+  return c.json(await loadShotChat(scene, shot));
+});
+
+app.post('/api/shows/:show/episodes/:episode/shots/:number/ask', async (c) => {
+  const file = sceneFile(c.req.param('show'), c.req.param('episode'));
+  const number = Number(c.req.param('number'));
+  if (file === undefined || !Number.isInteger(number)) return c.json({ error: 'Not found' }, 404);
+  const { text } = (await c.req.json()) as { text?: string };
+  if (typeof text !== 'string' || text.trim() === '') return c.json({ error: 'Say something.' }, 400);
+  return streamSSE(c, async (stream) => {
+    const emit = (event: ShotTurnEvent): void => {
+      void stream.writeSSE({ data: JSON.stringify(event) });
+    };
+    try {
+      if (FAKE) await askAboutShotFake(file, number, text.trim(), emit);
+      else await askAboutShot(file, number, text.trim(), emit, c.req.raw.signal);
+    } catch (error) {
+      emit({ type: 'error', message: (error as Error).message });
+    }
+  });
 });
 
 // Shots: edit text for free; redraw and fix are paid and the page confirms them first.

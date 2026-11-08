@@ -120,3 +120,26 @@ export type TurnEvent =
   | { type: 'proposal'; proposal: Proposal }
   | { type: 'done'; draft: Draft }
   | { type: 'error'; message: string };
+
+/** Something Claude offers for one shot. Applying it fills the editor; nothing is saved or paid for until you say so. */
+export type ShotSuggestion = {
+  id: string;
+  at: string;
+  why: string;
+  prompt?: string;
+  fix?: string;
+  lines?: { speaker: string; text: string }[];
+};
+
+export type ShotChat = {
+  sessionId?: string;
+  messages: DraftMessage[];
+  suggestions: ShotSuggestion[];
+};
+
+export type ShotTurnEvent =
+  | { type: 'text'; delta: string }
+  | { type: 'activity'; note: string }
+  | { type: 'suggestion'; suggestion: ShotSuggestion }
+  | { type: 'done'; chat: ShotChat }
+  | { type: 'error'; message: string };
