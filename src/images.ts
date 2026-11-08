@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { readFile, unlink, writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { z } from 'zod';
-import { ROOT, env } from './env.ts';
+import { env } from './env.ts';
 import { ffmpeg } from './ffmpeg.ts';
 import {
   EXT_BY_MIME,
@@ -17,7 +17,7 @@ import {
 import { refsForShot, type Ref, type Scene, type Shot } from './load.ts';
 import { ensureDir, fileSha, log, sha } from './util.ts';
 
-const CACHE = join(ROOT, '.cache', 'images');
+const CACHE = join(env.cacheDir, 'images');
 
 export type ShotImage = {
   file: string;

@@ -29,6 +29,8 @@ export const env = {
   cartesiaModel: read('CARTESIA_MODEL', 'sonic-3.6'),
   cartesiaVersion: read('CARTESIA_VERSION', '2026-08-14'),
   captionFont: read('CAPTION_FONT', 'Impact'),
+  /** Where generated images, voices and sounds are cached. Tests point this at a temp folder. */
+  cacheDir: resolve(ROOT, read('STORY_CACHE_DIR', '.cache')),
 };
 
 const KEY_NAMES = { geminiKey: 'GEMINI_API_KEY', elevenKey: 'ELEVENLABS_API_KEY', cartesiaKey: 'CARTESIA_API_KEY' } as const;

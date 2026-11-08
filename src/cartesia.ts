@@ -1,13 +1,13 @@
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { ROOT, env, requireKey } from './env.ts';
+import { env, requireKey } from './env.ts';
 import type { Span, Synthesized, SynthRequest } from './speech.ts';
 import { ensureDir, request } from './util.ts';
 
 const API = 'https://api.cartesia.ai';
 const SAMPLE_RATE = 44100;
-const NAMES_FILE = join(ROOT, '.cache', 'cartesia-voices.json');
+const NAMES_FILE = join(env.cacheDir, 'cartesia-voices.json');
 
 const headers = (): Record<string, string> => ({
   authorization: `Bearer ${requireKey('cartesiaKey')}`,
@@ -60,7 +60,7 @@ export async function resolveCartesiaVoice(ref: string): Promise<{ id: string; n
   }
 
   const resolved = { id: match.id, name: match.name };
-  await ensureDir(join(ROOT, '.cache'));
+  await ensureDir(env.cacheDir);
   await writeFile(NAMES_FILE, JSON.stringify({ ...known, [wanted]: resolved }, null, 2));
   return resolved;
 }
@@ -152,7 +152,7 @@ export async function cartesiaSpeech(request_: SynthRequest): Promise<Synthesize
 /** Downloads a Cartesia voice's preview sample, if it has one. */
 export async function cartesiaPreview(ref: string): Promise<{ name: string; file: string }> {
   const voice = await resolveCartesiaVoice(ref);
-  const dir = join(ROOT, '.cache', 'previews');
+  const dir = join(env.cacheDir, 'previews');
   await ensureDir(dir);
   const cached = ['.mp3', '.wav'].map((ext) => join(dir, `cartesia-${voice.id}${ext}`)).find((path) => existsSync(path));
   if (cached !== undefined) return { name: voice.name, file: cached };

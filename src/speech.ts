@@ -3,12 +3,12 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { cartesiaSpeech } from './cartesia.ts';
 import { elevenLabsSpeech } from './elevenlabs.ts';
-import { ROOT, env } from './env.ts';
+import { env } from './env.ts';
 import { ffmpeg, probeDuration } from './ffmpeg.ts';
 import type { VoiceSettings } from './schema.ts';
 import { ensureDir, sha } from './util.ts';
 
-const TTS_CACHE = join(ROOT, '.cache', 'tts');
+const TTS_CACHE = join(env.cacheDir, 'tts');
 
 export type Word = { text: string; start: number; end: number; highlight: boolean };
 export type Speech = {

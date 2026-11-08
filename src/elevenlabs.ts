@@ -1,13 +1,13 @@
 import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { ROOT, requireKey } from './env.ts';
+import { env, requireKey } from './env.ts';
 import { ffmpeg } from './ffmpeg.ts';
 import { spansFromCharacters, type Synthesized, type SynthRequest } from './speech.ts';
 import { ensureDir, request, sha } from './util.ts';
 
 const API = 'https://api.elevenlabs.io';
-const SFX_CACHE = join(ROOT, '.cache', 'sfx');
+const SFX_CACHE = join(env.cacheDir, 'sfx');
 
 const headers = (): Record<string, string> => ({
   'xi-api-key': requireKey('elevenKey'),
@@ -137,7 +137,7 @@ export async function voiceProblems(voiceIds: string[]): Promise<string[]> {
 export async function voicePreview(voiceId: string): Promise<{ name: string; file: string }> {
   const response = await request(`${API}/v1/voices/${encodeURIComponent(voiceId)}`, { headers: headers() }, `ElevenLabs voice ${voiceId}`);
   const voice = (await response.json()) as VoiceInfo;
-  const dir = join(ROOT, '.cache', 'previews');
+  const dir = join(env.cacheDir, 'previews');
   await ensureDir(dir);
   const file = join(dir, `${voiceId}.mp3`);
   if (!existsSync(file)) {
