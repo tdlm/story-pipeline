@@ -1,0 +1,158 @@
+# HATCH, Part 11: Get Up.
+# Written for Part 10's vote, a 3 to 3 tie, so Dana does both: the speaker first, then she goes up.
+# She has no suit (top comment: "without the right gear that's a death sentence"): his raincoat,
+# dish gloves, swim goggles, a wet towel. She pries the flare from his hand, holds off the last hound
+# (fire), drags him to the hatch. Inside: "I didn't knock." "You were busy." Next morning she keeps
+# coughing (left open, like his cough in Part 2). The tower becomes the goal.
+# Vote: tape the cracked visor and go tomorrow, or wait for the trader and a real visor.
+# Next full recap is due in Part 12. The pets stay below.
+
+title: Get Up
+cast: cast.yaml
+aspect: "9:16"
+header: "HATCH · PART 11"
+
+shots:
+  - id: result
+    image_file: kept/ep10/vote.jpg
+    move: push-in
+    lines:
+      - narrator: "You split right down the middle, three votes each. So Dana tries both."
+
+  - id: talk
+    cast: [dana, cat, hound]
+    props: [monitor, intercom]
+    plate: kept/ep10/vote.jpg
+    image: >
+      The same view at the monitor at night. Dana in her grey sweater leans over the counter with
+      her thumb pressed on the intercom's PUSH-TALK button, her face close to the speaker, pleading.
+      On the green camera feed, the survivor in his suit lies still beside the hatch, and a lean
+      grey hound circles at the edge of the screen. The cat stays on top of the monitor, fur up.
+    avoid: [open hatch, the survivor in the room, ash on Dana, red cheeks]
+    move: push-in
+    sfx: a faint growl through a speaker, intercom static
+    sfx_volume: 0.4
+    lines:
+      - dana-scared: "Hey. Can you hear me? You're ten feet from the hatch. Just roll over."
+      - dana-scared: "Please. Just roll *over*."
+      - narrator: "She talks to you for a whole minute. You don't move, and the last one keeps circling closer."
+
+  - id: gear
+    location: basement
+    cast: [dana-raincoat, dog, cat]
+    props: [hatch]
+    plate: refs/basement.jpg
+    plate_focus: [0.55, 0.6]
+    relight: true
+    image: >
+      Night in the dim amber shelter. At the foot of the ladder, Dana is tying a wet white dish towel
+      over her nose and mouth, already in his oversized dark green raincoat with the hood up, pink
+      rubber dish gloves on, swim goggles pushed up on her forehead. The dog sits at the foot of the
+      ladder looking up at her, whining. The cat watches from a shelf.
+    avoid: [open hatch, light at the hatch edges, hazmat suit, the survivor, yellow gloves, realistic faces]
+    move: push-in
+    sfx: a dog whining softly, a raincoat rustling
+    lines:
+      - narrator: "Dana doesn't have a suit. What she has is your old raincoat, a pair of dish gloves, and a wet towel tied over her face."
+      - dana: "Stay, Milo. I mean it."
+
+  - id: out
+    location: across
+    cast: [dana-raincoat, you, hound]
+    props: [hatch, road-flare]
+    plate: refs/across.jpg
+    plate_focus: [0.68, 0.6]
+    plate_zoom: 1.7
+    relight: true
+    image: >
+      Night, black sky, on the survivor's own front lawn. Dana in the oversized dark green raincoat,
+      towel mask and goggles climbs up out of the open square hatch on the grass. A few feet away the
+      survivor lies still on his back in his mustard hazmat suit, a lit red flare still burning in his
+      gloved fist. At the edge of the red light, a lean grey cinder hound waits, head low.
+    avoid: [his face, the hatch on the walkway or sidewalk, the street, daylight, blood, Milo, the cat]
+    move: push-in
+    sfx: a steel hatch creaking open, wind, a flare crackling
+    lines:
+      - narrator: "His flare is still burning in his fist. She has to pry it out of his fingers."
+
+  - id: drag
+    location: across
+    cast: [dana-raincoat, you, hound]
+    props: [hatch, road-flare]
+    plate: refs/across.jpg
+    plate_focus: [0.68, 0.6]
+    plate_zoom: 1.7
+    relight: true
+    image: >
+      Night, red flare light, on the survivor's front lawn. Dana in the oversized dark green raincoat
+      and towel mask leans back, dragging the limp survivor in his mustard hazmat suit across the
+      grass toward the open hatch by the collar of his suit with one pink-gloved hand. Her other arm
+      thrusts the lit red flare out at a lean grey cinder hound snarling at the edge of the light.
+    avoid: [his face, the hatch on the walkway or sidewalk, the street, daylight, blood, Milo, the cat]
+    move: push-in
+    sfx:
+      - { sound: "a vicious snarl outdoors at night", seconds: 2, volume: 0.7 }
+      - { sound: "a heavy body being dragged across grass and ash", at: 1, volume: 0.5 }
+    lines:
+      - dana-scared: "Get back! Get *back*!"
+      - narrator: "She holds the flare out at it with one hand and drags you by the collar with the other. You are not light."
+
+  - id: inside
+    location: basement
+    cast: [you, dana-raincoat, dog, cat]
+    props: [hatch]
+    plate: refs/basement.jpg
+    plate_focus: [0.55, 0.65]
+    relight: true
+    image: >
+      In the dim amber shelter at the foot of the ladder, the survivor sprawls on the floor in his
+      mustard hazmat suit with his round helmet pulled off beside him, coughing, his plain white
+      cartoon face and mustard beanie showing. Dana kneels beside him in the ash-covered raincoat,
+      the towel mask pulled down under her chin. The dog licks his face. The cat watches from a shelf.
+      The hatch above is shut.
+    avoid: [open hatch, light at the hatch edges, realistic faces, blood]
+    move: push-in
+    sfx:
+      - { sound: "a heavy steel hatch slamming shut, then bolts sliding home", seconds: 2, volume: 0.9 }
+      - { sound: "a man coughing hard", at: 2.5, seconds: 2, volume: 0.6 }
+    lines:
+      - narrator: "Somehow she gets you down the ladder, and the hatch is bolted before either of you can think about it."
+      - you: "...I didn't knock."
+      - dana: "You were busy."
+
+  - id: morning
+    location: basement
+    cast: [you, dana, cat]
+    plate: refs/basement.jpg
+    plate_focus: [0.35, 0.6]
+    image: >
+      Morning in the warm amber shelter. The survivor in his slate-blue coat and mustard beanie sits
+      on the edge of the cot, exhausted, looking at his round hazmat helmet on the workbench with a
+      white crack across its dark visor. Dana in her grey sweater sits on a crate opposite, coughing
+      into her sleeve. The cat is curled on the cot beside him.
+    avoid: [open hatch, light at the hatch edges, realistic faces, red cheeks, blood]
+    move: push-in
+    sfx:
+      - { sound: "a woman's dry cough, twice", at: 0.5, seconds: 2, volume: 0.6 }
+    lines:
+      - narrator: "In the morning you both feel like you got hit by a truck. Dana keeps coughing, and she says it's nothing."
+      - dana: "That tower on the hill. If somebody's broadcasting from up there, somebody up there knows what's going on."
+      - you: "And the trader said the signal gets louder the closer you get."
+
+  - id: vote
+    location: basement
+    cast: [you, dana]
+    props: [nail-gun]
+    plate: refs/basement.jpg
+    plate_focus: [0.4, 0.6]
+    image: >
+      The survivor in his slate-blue coat and mustard beanie stands at the workbench holding his
+      round hazmat helmet with the cracked dark visor in one hand and a roll of silver duct tape in
+      the other, considering it. Hank's yellow-and-black nail gun lies on the bench beside him. Dana
+      in her grey sweater watches from behind, arms folded, worried.
+    avoid: [open hatch, light at the hatch edges, realistic faces, red cheeks]
+    move: push-in
+    hold: 4
+    lines:
+      - narrator: "Your visor's cracked, and Hank's nail gun is jammed. Tape up the visor and head for the tower tomorrow? Or wait for the trader to come back, and find out what a real visor costs?"
+      - narrator: "Comment *one* or *two*."
