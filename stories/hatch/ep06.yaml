@@ -1,0 +1,179 @@
+# HATCH, Part 6: The Neighbours.
+# Written for the "search the Hendersons'" result of Part 5's vote (about 19 to 1).
+# Opens on a recap over reused pictures: the premise, then the last three votes.
+# Hank's garage (filters by month), his answering machine (the game's greeting, then his message
+# to Carol, then the 6:14 tape heard clearly: a hint about the voice, never explained).
+# The hooded figure is Carol Henderson, knocking on her own open front door: "She just remembers how
+# to knock" (ARC checkpoint). She crosses the street and knocks on HIS hatch. Below, Dana hears three
+# slow knocks, not the code: "That's not him." The dosimeter climbs.
+# Vote: get past Carol now, or hide in Hank's garage while the dosimeter climbs.
+# Style: see the project's writing-style note (varied rhythm, few highlights).
+
+title: The Neighbours
+cast: cast.yaml
+aspect: "9:16"
+header: "HATCH · PART 6"
+
+shots:
+  # Recap
+  - id: recap-flash
+    image_file: kept/ep01/flash.jpg
+    move: push-in
+    lines:
+      - narrator: "When the sky went white, you were the only one on the street with a shelter, mostly because everyone else thought you were crazy for building it."
+
+  - id: recap-shelter
+    image_file: kept/ep02/one.jpg
+    move: push-in
+    lines:
+      - narrator: "So it's been you, Milo and Zoey down there ever since, and every decision has been yours."
+
+  - id: recap-dana
+    image_file: kept/ep03/dana-feed.jpg
+    move: push-in
+    lines:
+      - narrator: "A few days in, Dana from across the street showed up at the hatch. She used to call you crazy, but she found out the hard way that you were right all along."
+
+  - id: recap-trust
+    image_file: kept/ep04/run.jpg
+    move: push-in
+    lines:
+      - narrator: "You sent her back for her food first, then let her in. When the vent clogged, you went up to clear it and trusted her to bolt the hatch behind you."
+
+  - id: recap-hendersons
+    image_file: kept/ep05/choice.jpg
+    move: push-in
+    lines:
+      - narrator: "The filter was shot, though, and almost all of you voted to go find more in the Hendersons' house."
+
+  # Episode
+  - id: garage
+    cast: [you]
+    image: >
+      Inside the Hendersons' dark garage. A torch beam from the survivor's gloved hand (mustard
+      hazmat sleeve at the edge of frame) lights neat metal shelves with hand-lettered labels.
+      One shelf holds stacks of square furnace filters, each stack labelled with a month. Ash dust
+      hangs in the beam. Everything else in shadow.
+    avoid: [his face, anyone else, a monster]
+    move: pan-right
+    sfx: a garage door creaking, footsteps on concrete, his breathing inside a helmet
+    lines:
+      - narrator: "Hank's garage is exactly as tidy as he always said it was. Every shelf has a label, and the furnace filters are sorted by month."
+      - you: "Bless you, Hank."
+
+  - id: machine
+    cast: [you]
+    image: >
+      Close on Hank's cluttered workbench in the dark garage, lit by a torch beam. An old beige
+      answering machine with a small cassette window is wired by a tangle of cable into a boxy
+      kitchen radio. Its red message light glows. The survivor's black-gloved finger, in a mustard
+      hazmat sleeve, presses the Play button.
+    avoid: [his face, anyone else]
+    move: push-in
+    sfx:
+      - { sound: "a single plastic button click on an old answering machine", seconds: 1, volume: 0.8 }
+    lines:
+      - narrator: "On the workbench there's an old answering machine, wired into a radio. The light is blinking."
+      - hank: "Hi, you've reached the Hendersons! We can't come to the phone right now, but leave a message after the beep!"
+      - hank: "Carol, it's me. Don't open the door for anyone, okay? Not even if it's *me*."
+
+  - id: tape
+    image: >
+      Extreme close-up of the answering machine's little cassette window in torchlight, the tiny
+      tape reels turning, the red light glowing beside them. Faint sound lines come off its speaker.
+    move: push-in
+    lines:
+      - narrator: "Hank had it set up to record the six fourteen every morning."
+      - radio: "Six fourteen. This is the Lighthouse station."
+      - narrator: "You've heard that voice every morning since the flash, but never this clearly."
+      - you: "...Huh."
+
+  - id: door
+    location: surface
+    cast: [carol]
+    image: >
+      Seen through a small, grimy four-pane garage window (the dark window frame and dusty glass
+      in the foreground), looking sideways along the front of the Hendersons' own house, close by.
+      The street is not in view. At the house's wide-open front door, Carol (hood down, grey curls,
+      long grey coat, greyed over with ash) raises one hand and knocks slowly on the door frame,
+      the dark hallway behind her. Vacant tired eyes. Human and sad, not a monster.
+    avoid: [glowing eyes, a monster, rot, the survivor, anyone else]
+    move: push-in
+    sfx:
+      - { sound: "one single slow knock of knuckles on a wooden door frame, outdoors, wind", at: 0.3, seconds: 1, volume: 0.8 }
+      - { sound: "one single slow knock of knuckles on a wooden door frame, outdoors, wind", at: 1.5, seconds: 1, volume: 0.8 }
+      - { sound: "one single slow knock of knuckles on a wooden door frame, outdoors, wind", at: 2.7, seconds: 1, volume: 0.8 }
+    lines:
+      - narrator: "Through the garage window, you can see someone at the Hendersons' front door. The hood slips back, and it's Carol Henderson."
+      - narrator: "She's knocking on her own front door, even though it's standing wide open."
+      - narrator: "She doesn't want to come in. She just remembers how to *knock*."
+
+  - id: carol-hatch
+    location: across
+    cast: [carol]
+    props: [hatch]
+    plate: refs/across.jpg
+    plate_focus: [0.68, 0.55]
+    plate_zoom: 1.6
+    image: >
+      Seen from across the street: on the survivor's front lawn, Carol (hood down, grey curls,
+      long grey coat, greyed over with ash) kneels beside the square steel hatch to the right of
+      the front path and knocks slowly on its lid with one knuckle. Ash falling. Human and sad,
+      not a monster.
+    avoid: [open hatch, a monster, glowing eyes, the survivor, anyone else]
+    move: push-in
+    sfx:
+      - { sound: "one single knock on a thick steel hatch, faint and far away across a street", at: 2.0, seconds: 1, volume: 0.6 }
+      - { sound: "one single knock on a thick steel hatch, faint and far away across a street", at: 3.2, seconds: 1, volume: 0.6 }
+      - { sound: "one single knock on a thick steel hatch, faint and far away across a street", at: 4.4, seconds: 1, volume: 0.6 }
+    lines:
+      - narrator: "By the time you've loaded up the filters, Carol has wandered across the street."
+      - narrator: "She's on your lawn now, kneeling at your hatch, and she's knocking on *that*."
+
+  - id: below
+    image_file: kept/ep02/knock.jpg
+    move: push-in
+    sfx:
+      - { sound: "one single heavy knock of a fist on a thick steel hatch, echoing in a small room", at: 0.2, seconds: 1, volume: 1 }
+      - { sound: "one single heavy knock of a fist on a thick steel hatch, echoing in a small room", at: 1.4, seconds: 1, volume: 1 }
+      - { sound: "one single heavy knock of a fist on a thick steel hatch, echoing in a small room", at: 2.6, seconds: 1, volume: 1 }
+    lines:
+      - narrator: "Down below, Dana hears three slow knocks. Not two, and then three."
+      - dana: "That's not *him*."
+
+  - id: dosimeter
+    cast: [you]
+    props: [dosimeter]
+    image: >
+      Close-up of the dosimeter strapped over the cuff of the survivor's mustard hazmat sleeve, its
+      needle edging up into the yellow band. His other black-gloved hand grips a canvas bag stuffed
+      with furnace filters. Dim garage light, ash dust in the air.
+    avoid: [his face, red band reached]
+    move: push-in
+    sfx: a dosimeter clicking, slowly speeding up
+    lines:
+      - narrator: "The dosimeter on your wrist has been creeping up since you came outside, and it hasn't stopped."
+      - you: "Come on, Carol. You live across the street."
+
+  - id: vote
+    location: across
+    cast: [you, carol]
+    props: [hatch, dosimeter]
+    plate: refs/across.jpg
+    plate_focus: [0.62, 0.5]
+    image: >
+      In the lower-left foreground, on the near sidewalk, the back of the survivor's shoulder and
+      helmet in his baggy mustard-yellow hazmat suit, the dosimeter on his wrist, looking across
+      the street at his own house. The front walkway runs straight and clear from the porch steps
+      down to the sidewalk. To the right of the walkway, on the grass in front of the fence, well
+      clear of the walkway, is the square steel hatch, and Carol (hood down, grey curls, long grey
+      coat) kneels small beside it, knocking on it. Ash falling.
+    avoid: [his face, open hatch, the hatch on the walkway or sidewalk, a monster, glowing eyes, anyone else]
+    move: pull-out
+    hold: 4
+    sfx: a dosimeter clicking faster, faint knocking far away, wind
+    sfx_volume: 0.5
+    lines:
+      - narrator: "Carol is the only thing between you and home."
+      - narrator: "Do you try to get past her now, or stay hidden in Hank's garage and hope she wanders off, while the dosimeter keeps *climbing*?"
+      - narrator: "Comment *one* or *two*."
